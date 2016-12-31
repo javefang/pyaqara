@@ -12,6 +12,26 @@ SERVER_PORT = 9898
 
 class AbstractAqaraEventHandler(object):
     """Implementation for an Aqara Gateway."""
+
+    def __init__(self):
+        self.transport = None
+
+    def subscribe(self):
+        """Subscribe to gateway events"""
+        loop = asyncio.get_event_loop()
+        listen = loop.create_datagram_endpoint(lambda: AqaraClientProtocol(self), local_addr=(SERVER_IP, SERVER_PORT))
+        transport, protocol = loop.run_until_complete(listen)
+        self.transport = transport
+        _LOGGER.info("subscribed to gateway events")
+
+    def unsubscribe(self):
+        """Unsubscribe from gateway events"""
+        if self.transport is None:
+            _LOGGER.info("not subscribed")
+        else:
+            self.transport.close()
+            _LOGGER.info("unsubscribed from gateway events")
+
     def handle_new_gateway(self, ip, sid):
         """Process a new gateway"""
         _LOGGER.info("New gateway: ip=%s, sid=%s", ip, sid)
@@ -118,22 +138,3 @@ class AqaraClientProtocol(object):
     def _send(self, ip, port, msg):
         data = json.dumps(msg).encode('utf-8')
         self.transport.sendto(data, (ip, port))
-
-class AqaraGatewayFactory(AbstractAqaraEventHandler):
-    def __init__(self):
-        self.gateways = []
-        self.transport = None
-
-    def connect(self):
-        loop = asyncio.get_event_loop()
-        listen = loop.create_datagram_endpoint(lambda: AqaraClientProtocol(self), local_addr=(SERVER_IP, SERVER_PORT))
-        transport, protocol = loop.run_until_complete(listen)
-        self.transport = transport
-        _LOGGER.info("gateway connected")
-
-    def disconnect(self):
-        if self.transport is None:
-            _LOGGER.info("gateway is not connected")
-        else:
-            self.transport.close()
-            _LOGGER.info("gateway disconnected")
