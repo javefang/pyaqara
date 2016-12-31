@@ -10,7 +10,7 @@ MCAST_PORT = 4321
 SERVER_IP = "0.0.0.0"
 SERVER_PORT = 9898
 
-class AqaraGatewayFactory(object):
+class AqaraEventHandler(object):
     """Implementation for an Aqara Gateway."""
     def handle_new_gateway(self, ip, sid):
         """Process a new gateway"""

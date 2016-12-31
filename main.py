@@ -9,8 +9,8 @@ SERVER_PORT = 9898
 def main():
     logging.basicConfig(level=logging.INFO)
     loop = asyncio.get_event_loop()
-    gateway_factory = aqara.AqaraGatewayFactory()
-    listen = loop.create_datagram_endpoint(lambda: aqara.AqaraClientProtocol(gateway_factory), local_addr=(SERVER_IP, SERVER_PORT))
+    event_handler = aqara.AqaraEventHandler()
+    listen = loop.create_datagram_endpoint(lambda: aqara.AqaraClientProtocol(event_handler), local_addr=(SERVER_IP, SERVER_PORT))
     transport, protocol = loop.run_until_complete(listen)
     try:
         loop.run_forever()
