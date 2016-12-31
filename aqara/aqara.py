@@ -2,7 +2,6 @@ import json
 import logging
 import socket
 import struct
-import asyncio
 
 _LOGGER = logging.getLogger(__name__)
 MCAST_GROUP = "224.0.0.50"
@@ -122,19 +121,3 @@ class AqaraClientProtocol(object):
     def _send(self, ip, port, msg):
         data = json.dumps(msg).encode('utf-8')
         self.transport.sendto(data, (ip, port))
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-    loop = asyncio.get_event_loop()
-    gateway_factory = AqaraGatewayFactory()
-    listen = loop.create_datagram_endpoint(lambda: AqaraClientProtocol(gateway_factory), local_addr=(SERVER_IP, SERVER_PORT))
-    transport, protocol = loop.run_until_complete(listen)
-    try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-    transport.close()
-    loop.close()
-
-if __name__=='__main__':
-    main()
