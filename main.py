@@ -10,15 +10,15 @@ class AqaraGatewayFactory(AbstractAqaraEventHandler):
         print("GatewayFactory::heartbeat: model=%s, sid=%s, data=%s", model, sid, json.dumps(data))
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     loop = asyncio.get_event_loop()
     gateway_factory = AqaraGatewayFactory()
-    gateway_factory.subscribe()
+    loop.run_until_complete(gateway_factory.start(loop))
     try:
         loop.run_forever()
     except KeyboardInterrupt:
         pass
-    gateway_factory.unsubscribe()
+    gateway_factory.stop()
     loop.close()
 
 if __name__=='__main__':

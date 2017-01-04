@@ -16,15 +16,15 @@ class AbstractAqaraEventHandler(object):
     def __init__(self):
         self.transport = None
 
-    def subscribe(self):
+    @asyncio.coroutine
+    def start(self, loop):
         """Subscribe to gateway events"""
-        loop = asyncio.get_event_loop()
         listen = loop.create_datagram_endpoint(lambda: AqaraClientProtocol(self), local_addr=(SERVER_IP, SERVER_PORT))
-        transport, protocol = loop.run_until_complete(listen)
+        transport, protocol = yield from listen
         self.transport = transport
         _LOGGER.info("subscribed to gateway events")
 
-    def unsubscribe(self):
+    def stop(self):
         """Unsubscribe from gateway events"""
         if self.transport is None:
             _LOGGER.info("not subscribed")
@@ -70,12 +70,12 @@ class AqaraClientProtocol(object):
         self._handle_msg(msg)
 
     def _add_membership(self):
-        print("Joining multicast group...")
+        _LOGGER.debug("Joining multicast group...")
         sock = self.transport.get_extra_info("socket")
         group = socket.inet_aton(MCAST_GROUP)
         mreq = struct.pack("4sL", group, socket.INADDR_ANY)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-        print("Membership added")
+        _LOGGER.debug("Multicast membership added")
 
     def _handle_iam(self, ip, sid):
         self.gateway_factory.handle_new_gateway(ip, sid)
