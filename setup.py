@@ -11,5 +11,4 @@ setup(name='pyaqara',
   license='MIT',
   packages=['aqara'],
   keywords = ['aqara', 'home', 'automation', 'sensor'],
-  zip_safe=True,
 )
