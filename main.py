@@ -4,10 +4,12 @@ import asyncio
 import json
 from aqara.aqara import AbstractAqaraEventHandler
 
+_LOGGER = logging.getLogger(__name__)
+
 class AqaraGatewayFactory(AbstractAqaraEventHandler):
     def handle_heartbeat(self, model, sid, data):
         """Example of overriding the default implementation"""
-        print("GatewayFactory::heartbeat: model=%s, sid=%s, data=%s", model, sid, json.dumps(data))
+        _LOGGER.info("GatewayFactory::heartbeat: model=%s, sid=%s, data=%s", model, sid, json.dumps(data))
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
