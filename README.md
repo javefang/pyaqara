@@ -1,10 +1,5 @@
 # Aqara Gateway Python Library
 
-## Important Constants
-const MULTICAST_ADDRESS = '224.0.0.50';
-const MULTICAST_PORT = 4321;
-const SERVER_PORT = 9898;
-
 ## Protocol
 
 Discovery
