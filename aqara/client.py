@@ -17,9 +17,10 @@ class AqaraClient(AqaraProtocol):
         discovery_msg = {"cmd": "whois"}
         self.broadcast(discovery_msg)
 
-    def discover_devices(self, gw_sid):
+    def discover_devices(self, gw_addr):
         """Ask a gateway to reply with the SID of all attached devices."""
-        pass
+        discover_devices_msg = {"cmd": "get_id_list"}
+        self.unicast(gw_addr, discover_devices_msg)
 
     def read_device(self, gw_addr, sid):
         """Send a request to read device 'sid' on gateway 'gw_addr'"""

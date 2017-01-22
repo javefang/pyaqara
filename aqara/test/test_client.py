@@ -14,3 +14,14 @@ def test_discover_gateways():
 
     test_data = {"cmd": "whois"}
     mock_client.broadcast.assert_called_with(test_data)
+
+def test_discover_devices():
+    """Test if the correct message is sent for discover_devices"""
+    mock_client = AqaraClient()
+    mock_client.unicast = MagicMock()
+    gw_addr = "10.10.10.10"
+    test_data = {"cmd": "get_id_list"}
+
+    mock_client.discover_devices(gw_addr)
+
+    mock_client.unicast.assert_called_with(gw_addr, test_data)
