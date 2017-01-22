@@ -5,11 +5,9 @@ import logging
 import socket
 import struct
 
+from .const import (MCAST_ADDR, MCAST_PORT, GATEWAY_PORT)
+
 _LOGGER = logging.getLogger(__name__)
-MCAST_GROUP = "224.0.0.50"
-MCAST_PORT = 4321
-SERVER_IP = "0.0.0.0"
-SERVER_PORT = 9898
 
 class AqaraMessagingProtocol(object):
     """Base aqara client protocol."""
@@ -36,22 +34,22 @@ class AqaraMessagingProtocol(object):
 
     def broadcast(self, msg):
         """Send a message to the Aqara multicast channel."""
-        self._send(MCAST_GROUP, MCAST_PORT, msg)
+        self._send(msg, (MCAST_ADDR, MCAST_PORT))
 
     def unicast(self, addr, msg):
         """Send a message to a specific gateway at <ip>"""
-        self._send(addr, SERVER_PORT, msg)
+        self._send(msg, (addr, GATEWAY_PORT))
 
-    def _send(self, addr, port, msg):
+    def _send(self, msg, dest):
         """private: send a message as UDP packet."""
         data = json.dumps(msg).encode('utf-8')
-        self.transport.sendto(data, (addr, port))
+        self.transport.sendto(data, dest)
 
     def _add_membership(self):
         """private: add multicast membership"""
         _LOGGER.debug("Joining multicast group...")
         sock = self.transport.get_extra_info("socket")
-        group = socket.inet_aton(MCAST_GROUP)
+        group = socket.inet_aton(MCAST_ADDR)
         mreq = struct.pack("4sL", group, socket.INADDR_ANY)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
         _LOGGER.debug("Multicast membership added")
