@@ -1,4 +1,4 @@
-"""Aqara Client"""
+"""Aqara Protocol"""
 
 import json
 import logging
