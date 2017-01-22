@@ -9,7 +9,7 @@ from .const import (MCAST_ADDR, MCAST_PORT, GATEWAY_PORT)
 
 _LOGGER = logging.getLogger(__name__)
 
-class AqaraMessagingProtocol(object):
+class AqaraProtocol(object):
     """Base aqara client protocol."""
 
     def __init__(self):
