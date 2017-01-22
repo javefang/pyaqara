@@ -24,7 +24,8 @@ class AqaraClient(AqaraProtocol):
 
     def read_device(self, gw_addr, sid):
         """Send a request to read device 'sid' on gateway 'gw_addr'"""
-        pass
+        read_msg = {"cmd": "read", "sid": sid}
+        self.unicast(gw_addr, read_msg)
 
     def write_device(self, gw_addr, sid, data):
         """Send a request to write 'data' to device 'sid' on gateway 'gw_addr'"""
