@@ -22,7 +22,9 @@ class AqaraProtocol(object):
 
     def datagram_received(self, data, addr):
         """Implementation when datagram is received."""
-        self.handle_message(data, addr)
+        data_str = data.decode('utf-8')
+        msg = json.loads(data_str)
+        self.handle_message(msg, addr)
 
     def error_received(self, exc):
         """Implentation when error is received."""

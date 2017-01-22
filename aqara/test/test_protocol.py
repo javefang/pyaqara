@@ -10,14 +10,15 @@ def test_handle_message():
     """test_handle_message"""
     mock_protocol = protocol.AqaraProtocol()
     mock_protocol.handle_message = MagicMock()
-    test_data = {"model": "test"}
+    test_data = json.dumps({"model": "test"}).encode('utf-8')
     test_addr = "10.10.10.10"
 
     # run test
     mock_protocol.datagram_received(test_data, test_addr)
 
     # assert
-    mock_protocol.handle_message.assert_called_with(test_data, test_addr)
+    test_data_decoded = json.loads(test_data.decode('utf-8'))
+    mock_protocol.handle_message.assert_called_with(test_data_decoded, test_addr)
 
 def test_unicast():
     """test_unicast"""
