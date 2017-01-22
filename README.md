@@ -1,5 +1,7 @@
 # Aqara Gateway Python Library
 
+[![Build Status](https://travis-ci.org/javefang/pyaqara.svg?branch=master)](https://travis-ci.org/javefang/pyaqara)
+
 ## Protocol
 
 Discovery
