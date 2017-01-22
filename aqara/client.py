@@ -29,7 +29,7 @@ class AqaraClient(AqaraProtocol):
 
     def write_device(self, gw_addr, sid, data):
         """Send a request to write 'data' to device 'sid' on gateway 'gw_addr'"""
-        pass
+        raise NotImplementedError()
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
