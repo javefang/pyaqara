@@ -2,4 +2,4 @@
 setup.cfg
 setup.py
 aqara/__init__.py
-aqara/aqara.py
+aqara/client.py

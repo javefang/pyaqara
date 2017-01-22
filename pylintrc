@@ -1,0 +1,8 @@
+[MASTER]
+reports=no
+
+# Reasons disabled:
+# no-self-use - spam too much
+
+disable=
+  no-self-use
