@@ -1,16 +1,35 @@
 """Aqara Client"""
+import asyncio
+import json
 import logging
 
 from .protocol import AqaraProtocol
+from .const import (LISTEN_IP, LISTEN_PORT)
 
 _LOGGER = logging.getLogger(__name__)
 
 class AqaraClient(AqaraProtocol):
     """Aqara Client implementation."""
 
+    @asyncio.coroutine
+    def start(self, loop):
+        """Start listening on gateway events"""
+        listen = loop.create_datagram_endpoint(lambda: self, local_addr=(LISTEN_IP, LISTEN_PORT))
+        transport, _protocol = yield from listen
+        self.transport = transport
+        _LOGGER.info("started")
+
+    def stop(self):
+        """Stop listening to gateway events"""
+        if self.transport is None:
+            _LOGGER.info("not started")
+        else:
+            self.transport.close()
+            _LOGGER.info("stopped")
+
     def handle_message(self, msg, addr):
         """Override: handle_message implementation"""
-        pass
+        _LOGGER.debug(json.dumps(msg))
 
     def discover_gateways(self):
         """Ask all gateways to respond identity."""
