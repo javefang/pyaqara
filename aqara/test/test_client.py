@@ -37,3 +37,19 @@ def test_read_device():
 
     expected_data = {"cmd": "read", "sid": test_sid}
     mock_client.unicast.assert_called_with(gw_addr, expected_data)
+
+def test_devices_discovered():
+    """Test if client calls on_device_discovered() when 'get_id_list_ack' cmd is received"""
+    mock_client = AqaraClient()
+    mock_client.unicast = MagicMock()
+    gw_addr = "10.10.10.10"
+    test_msg = {
+        "cmd": "get_id_list_ack",
+        "sid": "1234",
+        "data": json.dumps(["1111", "2222"])
+    }
+    
+    mock_client.handle_message(test_msg, gw_addr)
+    
+    
+    

@@ -60,7 +60,7 @@ class AqaraClient(AqaraProtocol):
         """Override: handle_message implementation"""
         cmd = msg["cmd"]
         sid = msg["sid"]
-        
+
         if cmd == "iam":
             addr = msg["ip"]
             self.on_gateway_discovered(sid, addr)
@@ -85,7 +85,6 @@ class AqaraClient(AqaraProtocol):
                 gw_token = msg["token"]
             data = _extract_data(msg)
             self.on_heartbeat(sid, data, gw_token)
-            
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
