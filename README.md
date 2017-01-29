@@ -2,30 +2,21 @@
 
 [![Build Status](https://travis-ci.org/javefang/pyaqara.svg?branch=master)](https://travis-ci.org/javefang/pyaqara)
 
-## Protocol
-
-Discovery
-https://github.com/javefang/lumi-gateway-local-api/blob/master/device_discover.md
-
-Read & Write
-https://github.com/javefang/lumi-gateway-local-api/blob/master/device_read_write.md
-
-heartbeat
-https://github.com/javefang/lumi-gateway-local-api/blob/master/device_heartbeat.md
-
+Python binding for the Aqara devices, based on protocol defined [here](https://github.com/louisZL/lumi-gateway-local-api)
 
 ## Features
 
 Supported
+- Gateway discovery
 - Sensor discovery
-- Active read sensor state
-- Passive listen on sensor update
-- Temp and Humid Sensor (hass sensor)
-- Contact Sensor (hass binary sensor)
-- Motion Sensor (hass binary sensor)
-- Switch
-- Sensor heartbeat (battery level)
+- Listen on sensor update
+- Read sensor state
+- Supported sensors
+  + Temperature and Humidity Sensor
+  + Contact Sensor
+  + Motion Sensor
+  + Aqara Switch Sensor
+- Gateway LED
 
-Unsupported
-- Gateway discovery (whois cmd)
-- Write action (switch)
+Todo
+- Sensor heartbeat
