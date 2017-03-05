@@ -1,7 +1,7 @@
 """Aqara Client Test"""
 from unittest.mock import MagicMock
 
-from ..client import AqaraClient
+from aqara.client import AqaraClient
 
 # Send tests
 
@@ -37,4 +37,3 @@ def test_read_device():
 
     expected_data = {"cmd": "read", "sid": test_sid}
     mock_client.unicast.assert_called_with(gw_addr, expected_data)
-    
