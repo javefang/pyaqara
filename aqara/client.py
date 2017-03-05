@@ -3,9 +3,9 @@ import asyncio
 import json
 import logging
 
-from .protocol import AqaraProtocol
-from .gateway import AqaraGateway
-from .const import (LISTEN_IP, LISTEN_PORT)
+from aqara.protocol import AqaraProtocol
+from aqara.gateway import AqaraGateway
+from aqara.const import (LISTEN_IP, LISTEN_PORT)
 
 _LOGGER = logging.getLogger(__name__)
 

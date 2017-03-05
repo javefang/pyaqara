@@ -5,7 +5,7 @@ import logging
 import socket
 import struct
 
-from .const import (MCAST_ADDR, MCAST_PORT, GATEWAY_PORT)
+from aqara.const import (MCAST_ADDR, MCAST_PORT, GATEWAY_PORT)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ class AqaraProtocol(object):
         """Implementation when datagram is received."""
         data_str = data.decode('utf-8')
         msg = json.loads(data_str)
+        _LOGGER.debug('recv: %s', data_str)
         self.handle_message(msg, addr)
 
     def error_received(self, exc):
@@ -44,6 +45,7 @@ class AqaraProtocol(object):
 
     def _send(self, msg, dest):
         """private: send a message as UDP packet."""
+        _LOGGER.debug('send: %s', json.dumps(msg))
         data = json.dumps(msg).encode('utf-8')
         self.transport.sendto(data, dest)
 

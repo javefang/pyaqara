@@ -3,8 +3,8 @@ import json
 from asyncio import DatagramTransport
 from unittest.mock import MagicMock
 
-from .. import protocol
-from ..const import (MCAST_ADDR, MCAST_PORT, GATEWAY_PORT)
+from aqara import protocol
+from aqara.const import (MCAST_ADDR, MCAST_PORT, GATEWAY_PORT)
 
 def test_handle_message():
     """test_handle_message"""
