@@ -1,4 +1,12 @@
-"""Aqara Protocol"""
+"""
+Aqara Protocol
+
+Provide protocol level support for Aqara, feature including
+- Join multicast group
+- Receive / Send messages
+- Encoding / Decoding messages
+- Utility to unicast / broadcast messages
+"""
 
 import json
 import logging
