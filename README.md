@@ -1,34 +1,25 @@
 # Aqara Gateway Python Library
 
-## Important Constants
-const MULTICAST_ADDRESS = '224.0.0.50';
-const MULTICAST_PORT = 4321;
-const SERVER_PORT = 9898;
+[![Build Status](https://travis-ci.org/javefang/pyaqara.svg?branch=master)](https://travis-ci.org/javefang/pyaqara)
 
-## Protocol
+Python binding for the Aqara devices, based on protocol defined [here](https://github.com/louisZL/lumi-gateway-local-api)
 
-Discovery
-https://github.com/javefang/lumi-gateway-local-api/blob/master/device_discover.md
-
-Read & Write
-https://github.com/javefang/lumi-gateway-local-api/blob/master/device_read_write.md
-
-heartbeat
-https://github.com/javefang/lumi-gateway-local-api/blob/master/device_heartbeat.md
-
+The aim of this project is to abstract the protocol implementation details away and let
+developer focus on developing features and integrations on top of the Aqara hardware, with
+a focus on [HomeAssistant](https://github.com/home-assistant/home-assistant) integration.
+It also protect developers from breaking changes in the API.
 
 ## Features
 
-Supported
+Supported Features
+- Gateway discovery
 - Sensor discovery
-- Active read sensor state
-- Passive listen on sensor update
-- Temp and Humid Sensor (hass sensor)
-- Contact Sensor (hass binary sensor)
-- Motion Sensor (hass binary sensor)
-- Switch
-- Sensor heartbeat (battery level)
+- Listen on sensor update
+- Read sensor state
 
-Unsupported
-- Gateway discovery (whois cmd)
-- Write action (switch)
+Supported Hardwares
+  + Temperature and Humidity Sensor
+  + Contact Sensor
+  + Motion Sensor
+  + Aqara Switch Sensor
+  + Gateway LED (brightness and color)
