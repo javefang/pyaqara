@@ -1,4 +1,17 @@
-"""Aqara Client"""
+"""
+Aqara Client
+
+A client implementation to receive Aqara events and send control messages.
+
+Feature includes:
+- Discover gateways
+- Discover devices of a gateway
+- Subscribe to updates for devices
+- Read values from a device (async)
+- Send control command to a device (async)
+- Heartbeat
+
+"""
 import asyncio
 import json
 import logging
