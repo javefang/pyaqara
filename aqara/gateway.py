@@ -13,6 +13,8 @@ Features:
 import logging
 import json
 
+from aqara.device import (create_device)
+
 _LOGGER = logging.getLogger(__name__)
 
 class AqaraGateway(object):
@@ -22,6 +24,7 @@ class AqaraGateway(object):
         self._sid = sid
         self._addr = addr
         self._token = None
+        self._devices = {}
 
     def connect(self):
         """Start the gateway"""
@@ -35,6 +38,9 @@ class AqaraGateway(object):
     def on_read_ack(self, model, sid, data):
         """Callback on read_ack"""
         _LOGGER.debug("on_read_ack: [%s] %s: %s", model, sid, json.dumps(data))
+        if sid not in self._devices:
+            self._devices[sid] = create_device(model, sid)
+        self._devices[sid].on_update(data)
 
     def on_write_ack(self, model, sid, data):
         """Callback on write_ack"""
@@ -43,6 +49,10 @@ class AqaraGateway(object):
     def on_report(self, model, sid, data):
         """Callback on report"""
         _LOGGER.debug("on_report: [%s] %s: %s", model, sid, json.dumps(data))
+
+        if sid not in self._devices:
+            _LOGGER.warning('report ignored, unregistered device %s [%s]', model, sid)
+        self._devices[sid].on_update(data)
 
     def on_heartbeat(self, sid, data, gw_token):
         """Callback on heartbeat"""
