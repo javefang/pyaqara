@@ -28,7 +28,7 @@ def create_device(model, sid):
     elif model == AQARA_DEVICE_SWITCH:
         return AqaraSwitchSensor(sid)
     else:
-        raise RuntimeError('Unsupported device type: %s [%s]' % model, sid)
+        raise RuntimeError('Unsupported device type: {} [{}]'.format(model, sid))
 
 class AqaraBaseDevice(object):
     """AqaraBaseDevice"""
