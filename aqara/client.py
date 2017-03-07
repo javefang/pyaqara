@@ -31,7 +31,7 @@ class AqaraClient(AqaraProtocol):
         super().__init__()
         self.transport = None
         # gateway sid -> gateway
-        self.sids = {}
+        self._gateways = {}
 
     @asyncio.coroutine
     def start(self, loop):
@@ -102,43 +102,43 @@ class AqaraClient(AqaraProtocol):
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
         gateway = AqaraGateway(self, gw_sid, gw_addr)
-        self.sids[gw_sid] = gateway
+        self._gateways[gw_sid] = gateway
         gateway.connect()
 
     def on_devices_discovered(self, gw_sid, sids):
         """Called when list of devices of gateway is returned."""
-        if gw_sid not in self.sids:
+        if gw_sid not in self._gateways:
             _LOGGER.error("on_devices_discovered(): sid not found %s", gw_sid)
             return
-        gateway = self.sids[gw_sid]
+        gateway = self._gateways[gw_sid]
         for sid in sids:
-            self.sids[sid] = gateway
+            self._gateways[sid] = gateway
         gateway.on_devices_discovered(sids)
 
     def on_read_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a read request."""
-        if sid not in self.sids:
+        if sid not in self._gateways:
             _LOGGER.error("on_read_ack(): sid not found %s", sid)
             return
-        self.sids[sid].on_read_ack(model, sid, data)
+        self._gateways[sid].on_read_ack(model, sid, data)
 
     def on_write_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a write request."""
-        if sid not in self.sids:
+        if sid not in self._gateways:
             _LOGGER.error("on_write_ack(): sid not found %s", sid)
             return
-        self.sids[sid].on_write_ack(model, sid, data)
+        self._gateways[sid].on_write_ack(model, sid, data)
 
     def on_report(self, model, sid, data):
         """Called when a device sent a status report."""
-        if sid not in self.sids:
+        if sid not in self._gateways:
             _LOGGER.error("on_report(): sid not found %s", sid)
             return
-        self.sids[sid].on_report(model, sid, data)
+        self._gateways[sid].on_report(model, sid, data)
 
     def on_heartbeat(self, sid, data, gw_token=None):
         """Called when a heartbeat is received."""
-        if sid not in self.sids:
+        if sid not in self._gateways:
             _LOGGER.error("on_heartbeat(): sid not found %s", sid)
             return
-        self.sids[sid].on_heartbeat(sid, data, gw_token)
+        self._gateways[sid].on_heartbeat(sid, data, gw_token)
