@@ -33,6 +33,11 @@ class AqaraClient(AqaraProtocol):
         self._gateways = {}
         self._device_to_gw = {}
 
+    @property
+    def gateways(self):
+        """property: gateways"""
+        return self._gateways
+
     @asyncio.coroutine
     def start(self, loop):
         """Start listening on gateway events"""

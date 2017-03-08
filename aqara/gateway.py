@@ -26,6 +26,11 @@ class AqaraGateway(object):
         self._token = None
         self._devices = {}
 
+    @property
+    def devices(self):
+        """property: devices"""
+        return self._devices
+
     def connect(self):
         """Start the gateway"""
         self._client.discover_devices(self._addr)
