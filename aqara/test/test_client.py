@@ -39,16 +39,19 @@ def test_read_device():
     mock_client.unicast.assert_called_with(gw_addr, expected_data)
 
 def test_handle_message_iam():
-    """Test if a gateway is created after message "iam" is received"""
+    """Test if a gateway is created and discover_devices is called with gateway IP
+    after message "iam" is received"""
+
     src_addr = "10.10.10.10"
     msg_iam = {
         "cmd": "iam",
-        "ip": "10.10.10.10",
+        "ip": src_addr,
         "sid": "123456"
     }
 
     mock_client = AqaraClient()
-    mock_client.unicast = MagicMock()
+    mock_client.discover_devices = MagicMock()
     mock_client.handle_message(msg_iam, src_addr)
 
     assert len(mock_client.gateways.keys()) == 1
+    mock_client.discover_devices.assert_called_once_with(src_addr)
