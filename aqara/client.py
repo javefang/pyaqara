@@ -74,8 +74,10 @@ class AqaraClient(AqaraProtocol):
         """Send a request to write 'data' to device 'sid' on gateway 'gw_addr'"""
         raise NotImplementedError()
 
-    def handle_message(self, msg, addr):
+    def handle_message(self, msg, src_addr):
         """Override: handle_message implementation"""
+        _LOGGER.debug("handle_message from %s", src_addr)
+
         cmd = msg["cmd"]
         sid = msg["sid"]
 
