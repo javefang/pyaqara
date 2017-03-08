@@ -30,8 +30,8 @@ class AqaraClient(AqaraProtocol):
     def __init__(self):
         super().__init__()
         self.transport = None
-        # gateway sid -> gateway
         self._gateways = {}
+        self._devices = {}
 
     @asyncio.coroutine
     def start(self, loop):
@@ -112,7 +112,7 @@ class AqaraClient(AqaraProtocol):
             return
         gateway = self._gateways[gw_sid]
         for sid in sids:
-            self._gateways[sid] = gateway
+            self._devices[sid] = gateway
         gateway.on_devices_discovered(sids)
 
     def on_read_ack(self, model, sid, data):
@@ -134,7 +134,8 @@ class AqaraClient(AqaraProtocol):
         if sid not in self._gateways:
             _LOGGER.error("on_report(): sid not found %s", sid)
             return
-        self._gateways[sid].on_report(model, sid, data)
+        gateway = self._devices[sid]
+        gateway.on_report(model, sid, data)
 
     def on_heartbeat(self, sid, data, gw_token=None):
         """Called when a heartbeat is received."""
