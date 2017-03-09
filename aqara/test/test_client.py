@@ -1,7 +1,10 @@
 """Aqara Client Test"""
-from unittest.mock import MagicMock
+# pylint: disable=protected-access
+import json
 
+from unittest.mock import MagicMock
 from aqara.client import AqaraClient
+from aqara.gateway import AqaraGateway
 
 # Send tests
 
@@ -51,7 +54,30 @@ def test_handle_message_iam():
 
     mock_client = AqaraClient()
     mock_client.discover_devices = MagicMock()
+
     mock_client.handle_message(msg_iam, src_addr)
 
     assert len(mock_client.gateways.keys()) == 1
     mock_client.discover_devices.assert_called_once_with(src_addr)
+
+def test_handle_message_device_list():
+    """Test if client maps all sids to the gateway and call gateway.on_devices_discovered"""
+
+    gw_addr = "10.10.10.10"
+    gw_sid = "123456"
+    msg_get_id_list_ack = {
+        "cmd": "get_id_list_ack",
+        "sid": gw_sid,
+        "data": json.dumps(["1", "2", "3"])
+    }
+
+    mock_client = AqaraClient()
+    mock_client.read_device = MagicMock()
+    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr)
+    mock_client._gateways[gw_sid] = mock_gateway
+    mock_gateway.on_devices_discovered = MagicMock()
+
+    mock_client.handle_message(msg_get_id_list_ack, gw_addr)
+
+    mock_gateway.on_devices_discovered.called_once_with(["1", "2", "3"])
+    assert len(mock_client._device_to_gw.keys()) == 3
