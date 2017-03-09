@@ -27,9 +27,10 @@ def _extract_data(msg):
 
 class AqaraClient(AqaraProtocol):
     """Aqara Client implementation."""
-    def __init__(self):
+    def __init__(self, gw_secrets={}):
         super().__init__()
         self.transport = None
+        self._gw_secrets = gw_secrets
         self._gateways = {}
         self._device_to_gw = {}
 
@@ -119,7 +120,10 @@ class AqaraClient(AqaraProtocol):
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
-        gateway = AqaraGateway(self, gw_sid, gw_addr)
+        gw_secret = None
+        if gw_sid in self._gw_secrets:
+            gw_secret = self._gw_secrets[gw_sid]
+        gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
         self._gateways[gw_sid] = gateway
         gateway.connect()
 
