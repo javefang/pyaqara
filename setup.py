@@ -11,4 +11,7 @@ setup(name='pyaqara',
   license='MIT',
   packages=['aqara'],
   keywords = ['aqara', 'home', 'automation', 'sensor'],
+  install_requires=[
+    'pycrypto'
+  ]
 )
