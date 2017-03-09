@@ -30,8 +30,13 @@ class AqaraClient(AqaraProtocol):
     def __init__(self):
         super().__init__()
         self.transport = None
-        # gateway sid -> gateway
-        self.sids = {}
+        self._gateways = {}
+        self._device_to_gw = {}
+
+    @property
+    def gateways(self):
+        """property: gateways"""
+        return self._gateways
 
     @asyncio.coroutine
     def start(self, loop):
@@ -69,8 +74,10 @@ class AqaraClient(AqaraProtocol):
         """Send a request to write 'data' to device 'sid' on gateway 'gw_addr'"""
         raise NotImplementedError()
 
-    def handle_message(self, msg, addr):
+    def handle_message(self, msg, src_addr):
         """Override: handle_message implementation"""
+        _LOGGER.debug("handle_message from %s", src_addr)
+
         cmd = msg["cmd"]
         sid = msg["sid"]
 
@@ -93,52 +100,60 @@ class AqaraClient(AqaraProtocol):
             data = _extract_data(msg)
             self.on_report(model, sid, data)
         elif cmd == "heartbeat":
-            gw_token = None
-            if "token" in msg:
-                gw_token = msg["token"]
             data = _extract_data(msg)
-            self.on_heartbeat(sid, data, gw_token)
+            if msg["model"] == "gateway":
+                gw_token = msg["token"]
+                self.on_heartbeat(sid, data, gw_token)
+            else:
+                self.on_device_heartbeat(sid, data)
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
         gateway = AqaraGateway(self, gw_sid, gw_addr)
-        self.sids[gw_sid] = gateway
+        self._gateways[gw_sid] = gateway
         gateway.connect()
 
     def on_devices_discovered(self, gw_sid, sids):
         """Called when list of devices of gateway is returned."""
-        if gw_sid not in self.sids:
+        if gw_sid not in self._gateways:
             _LOGGER.error("on_devices_discovered(): sid not found %s", gw_sid)
             return
-        gateway = self.sids[gw_sid]
+        gateway = self._gateways[gw_sid]
         for sid in sids:
-            self.sids[sid] = gateway
+            self._device_to_gw[sid] = gateway
         gateway.on_devices_discovered(sids)
 
     def on_read_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a read request."""
-        if sid not in self.sids:
+        if sid not in self._gateways:
             _LOGGER.error("on_read_ack(): sid not found %s", sid)
             return
-        self.sids[sid].on_read_ack(model, sid, data)
+        self._gateways[sid].on_read_ack(model, sid, data)
 
     def on_write_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a write request."""
-        if sid not in self.sids:
+        if sid not in self._gateways:
             _LOGGER.error("on_write_ack(): sid not found %s", sid)
             return
-        self.sids[sid].on_write_ack(model, sid, data)
+        self._gateways[sid].on_write_ack(model, sid, data)
 
     def on_report(self, model, sid, data):
         """Called when a device sent a status report."""
-        if sid not in self.sids:
+        if sid not in self._gateways:
             _LOGGER.error("on_report(): sid not found %s", sid)
             return
-        self.sids[sid].on_report(model, sid, data)
+        self._device_to_gw[sid].on_report(model, sid, data)
 
-    def on_heartbeat(self, sid, data, gw_token=None):
+    def on_heartbeat(self, sid, data, gw_token):
         """Called when a heartbeat is received."""
-        if sid not in self.sids:
-            _LOGGER.error("on_heartbeat(): sid not found %s", sid)
+        if sid not in self._gateways:
+            _LOGGER.warning("on_device_heartbeat(): sid not found %s", sid)
             return
-        self.sids[sid].on_heartbeat(sid, data, gw_token)
+        self._gateways[sid].on_heartbeat(data, gw_token)
+
+    def on_device_heartbeat(self, sid, data):
+        """Called when a device heartbeat is received."""
+        if sid not in self._device_to_gw:
+            _LOGGER.warning("on_device_heartbeat(): sid not found %s", sid)
+            return
+        self._device_to_gw[sid].on_device_heartbeat(sid, data)

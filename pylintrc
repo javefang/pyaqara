@@ -3,6 +3,8 @@ reports=no
 
 # Reasons disabled:
 # no-self-use - spam too much
+# locally-disabled - allow pylint override
 
 disable=
-  no-self-use
+  no-self-use,
+  locally-disabled
