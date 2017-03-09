@@ -61,9 +61,9 @@ class AqaraGateway(object):
         _LOGGER.debug("on_report: [%s] %s: %s", model, sid, json.dumps(data))
         self._update_device(model, sid, data)
 
-    def on_heartbeat(self, sid, data, gw_token):
+    def on_heartbeat(self, data, gw_token):
         """Callback on heartbeat"""
-        _LOGGER.debug("on_heartbeat: %s: (token=%s) %s", sid, gw_token, json.dumps(data))
+        _LOGGER.debug("on_heartbeat: %s: (token=%s) %s", self._sid, gw_token, json.dumps(data))
         self._token = gw_token
 
     def on_device_heartbeat(self, sid, data):
