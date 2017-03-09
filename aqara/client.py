@@ -70,9 +70,19 @@ class AqaraClient(AqaraProtocol):
         read_msg = {"cmd": "read", "sid": sid}
         self.unicast(gw_addr, read_msg)
 
-    def write_device(self, gw_addr, sid, data):
+    def write_device(self, gw_addr, model, sid, data, meta=None):
         """Send a request to write 'data' to device 'sid' on gateway 'gw_addr'"""
-        raise NotImplementedError()
+        write_msg = {
+            "cmd": "write",
+            "model": model,
+            "sid": sid,
+            "data": json.dumps(data)
+        }
+
+        if meta != None:
+            write_msg.update(meta)
+
+        self.unicast(gw_addr, write_msg)
 
     def handle_message(self, msg, src_addr):
         """Override: handle_message implementation"""
