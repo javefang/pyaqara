@@ -100,11 +100,12 @@ class AqaraClient(AqaraProtocol):
             data = _extract_data(msg)
             self.on_report(model, sid, data)
         elif cmd == "heartbeat":
-            gw_token = None
-            if "token" in msg:
-                gw_token = msg["token"]
             data = _extract_data(msg)
-            self.on_heartbeat(sid, data, gw_token)
+            if msg["model"] == "gateway":
+                gw_token = msg["token"]
+                self.on_heartbeat(sid, data, gw_token)
+            else:
+                self.on_device_heartbeat(sid, data)
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
@@ -143,11 +144,16 @@ class AqaraClient(AqaraProtocol):
             return
         self._device_to_gw[sid].on_report(model, sid, data)
 
-    def on_heartbeat(self, sid, data, gw_token=None):
+    def on_heartbeat(self, sid, data, gw_token):
         """Called when a heartbeat is received."""
-        if sid in self._gateways:
-            self._gateways[sid].on_heartbeat(sid, data, gw_token)
-        elif sid in self._device_to_gw:
-            self._device_to_gw[sid].on_device_heartbeat(sid, data)
-        else:
-            _LOGGER.error("on_heartbeat(): sid not found %s", sid)
+        if sid not in self._gateways:
+            _LOGGER.warning("on_device_heartbeat(): sid not found %s", sid)
+            return
+        self._gateways[sid].on_heartbeat(sid, data, gw_token)
+
+    def on_device_heartbeat(self, sid, data):
+        """Called when a device heartbeat is received."""
+        if sid not in self._device_to_gw:
+            _LOGGER.warning("on_device_heartbeat(): sid not found %s", sid)
+            return
+        self._device_to_gw[sid].on_device_heartbeat(sid, data)
