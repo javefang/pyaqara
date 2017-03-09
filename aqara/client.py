@@ -27,9 +27,10 @@ def _extract_data(msg):
 
 class AqaraClient(AqaraProtocol):
     """Aqara Client implementation."""
-    def __init__(self):
+    def __init__(self, gw_secrets=None):
         super().__init__()
         self.transport = None
+        self._gw_secrets = {} if gw_secrets is None else gw_secrets
         self._gateways = {}
         self._device_to_gw = {}
 
@@ -70,9 +71,19 @@ class AqaraClient(AqaraProtocol):
         read_msg = {"cmd": "read", "sid": sid}
         self.unicast(gw_addr, read_msg)
 
-    def write_device(self, gw_addr, sid, data):
+    def write_device(self, gw_addr, model, sid, data, meta=None):
         """Send a request to write 'data' to device 'sid' on gateway 'gw_addr'"""
-        raise NotImplementedError()
+        write_msg = {
+            "cmd": "write",
+            "model": model,
+            "sid": sid,
+            "data": json.dumps(data)
+        }
+
+        if meta != None:
+            write_msg.update(meta)
+
+        self.unicast(gw_addr, write_msg)
 
     def handle_message(self, msg, src_addr):
         """Override: handle_message implementation"""
@@ -100,17 +111,19 @@ class AqaraClient(AqaraProtocol):
             data = _extract_data(msg)
             self.on_report(model, sid, data)
         elif cmd == "heartbeat":
+            model = msg["model"]
             data = _extract_data(msg)
-            if msg["model"] == "gateway":
-                gw_token = msg["token"]
-                self.on_heartbeat(sid, data, gw_token)
-            else:
-                self.on_device_heartbeat(sid, data)
+            gw_token = None if "token" not in msg else msg["token"]
+            self.on_heartbeat(model, sid, data, gw_token)
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
-        gateway = AqaraGateway(self, gw_sid, gw_addr)
+        gw_secret = None
+        if gw_sid in self._gw_secrets:
+            gw_secret = self._gw_secrets[gw_sid]
+        gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
         self._gateways[gw_sid] = gateway
+        self._device_to_gw[gw_sid] = gateway
         gateway.connect()
 
     def on_devices_discovered(self, gw_sid, sids):
@@ -139,21 +152,14 @@ class AqaraClient(AqaraProtocol):
 
     def on_report(self, model, sid, data):
         """Called when a device sent a status report."""
-        if sid not in self._gateways:
-            _LOGGER.error("on_report(): sid not found %s", sid)
+        if sid not in self._device_to_gw:
+            _LOGGER.warning("on_report(): sid not found %s", sid)
             return
         self._device_to_gw[sid].on_report(model, sid, data)
 
-    def on_heartbeat(self, sid, data, gw_token):
+    def on_heartbeat(self, model, sid, data, gw_token):
         """Called when a heartbeat is received."""
-        if sid not in self._gateways:
-            _LOGGER.warning("on_device_heartbeat(): sid not found %s", sid)
-            return
-        self._gateways[sid].on_heartbeat(data, gw_token)
-
-    def on_device_heartbeat(self, sid, data):
-        """Called when a device heartbeat is received."""
         if sid not in self._device_to_gw:
-            _LOGGER.warning("on_device_heartbeat(): sid not found %s", sid)
+            _LOGGER.warning("on_heartbeat(): sid not found %s", sid)
             return
-        self._device_to_gw[sid].on_device_heartbeat(sid, data)
+        self._device_to_gw[sid].on_heartbeat(model, sid, data, gw_token)
