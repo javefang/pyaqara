@@ -68,8 +68,16 @@ class AqaraGateway(AqaraBaseDevice):
 
     def connect(self):
         """Start the gateway"""
+        self.discover_devices()
+        self.read_device(self._sid)
+
+    def discover_devices(self):
+        """discover devices attached to this gateway"""
         self._client.discover_devices(self._addr)
-        self._client.read_device(self._addr, self._sid)
+
+    def read_device(self, sid):
+        """force read the value of a device attached to this gateway"""
+        self._client.read_device(self._addr, sid)
 
     def set_light(self, brightness, red, green, blue):
         """Set gateway light (color and brightness)"""

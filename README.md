@@ -23,3 +23,94 @@ Supported Hardwares
   + Motion Sensor
   + Aqara Switch Sensor
   + Gateway LED (brightness and color)
+
+## API
+### Configuration
+Create an instance of AqaraClient, and provide your gateway SIDs and secrets as a dictionary, for Example
+
+```
+from aqara.client import AqaraClient
+
+client = AqaraClient({
+  "my_gateway_sid": "my_gateway_secret",
+  "my_second_gateway_sid": "my_second_gateway_secret"
+})
+```
+
+### Bootstrap
+The API need to be running in an event loop.
+
+```
+import asyncio
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(client.start(loop))
+
+try:
+  loop.run_forever()
+except KeyboardInterrupt:
+  pass
+client.stop()
+loop.close()
+```
+
+### Discovery
+Once started, the client will automatically discover all gateways.
+It will also discover all attached devices (sensors) when each new gateway is discovered.
+
+You can trigger a manual discovery later
+
+```
+client.discover_gateways()
+```
+
+Get a list of discovered gateways
+
+```
+gateways = client.gateway
+```
+
+Get a list of discovered devices of a gateway
+
+```
+gateways[0].devices
+```
+
+### Sensors
+To get type of a sensor
+```
+print(sensor.model)
+```
+
+To access sensor data
+```
+# sensor_ht
+>>> print(sensor_ht.temperature)
+23.51
+
+>>> print(sensor_ht.humidity)
+60.15
+
+# motion
+>>> print(sensor_motion.triggered)
+True
+
+# magnet
+>>> print(sensor_magnet.triggered)
+True
+
+# switch
+>>> print(sensor_switch.last_action)
+click
+```
+
+Sensor properties are updated automatically when reports are received.
+To subscribe to updates, set a callback function:
+```
+def on_sensor_update():
+  print(sensor.triggered)
+
+sensor.set_update_callback(on_sensor_update)
+```
+
+self.set_light(77, 255, 79, 0) #original 1308577536
