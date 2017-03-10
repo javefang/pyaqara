@@ -22,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def encode_light_rgb(brightness, red, green, blue):
     """Encode rgb value used to control the gateway light"""
-    return brightness << 24 + red << 16 + green << 8 + blue
+    return (brightness << 24) + (red << 16) + (green << 8) + blue
 
 class AqaraGateway(AqaraBaseDevice):
     """Aqara Gateway implementation."""
