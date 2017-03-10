@@ -77,13 +77,13 @@ Trigger a manual discovery of devices on a gateway
 gateway.discover_devices()
 ```
 
-### Sensors
-To get type of a sensor
+### Devices
+To get type of a device (sensor)
 ```
-print(sensor.model)
+print(device.model)
 ```
 
-To access sensor data
+To access device data
 ```
 # sensor_ht
 \>\>\> print(sensor_ht.temperature)
