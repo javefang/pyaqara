@@ -134,22 +134,24 @@ class AqaraClient(AqaraProtocol):
             return
         gateway = self._gateways[gw_sid]
         for sid in sids:
+            _LOGGER.info("registering device %s to gateway %s", sid, gw_sid)
             self._device_to_gw[sid] = gateway
         gateway.on_devices_discovered(sids)
 
     def on_read_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a read request."""
-        if sid not in self._gateways:
+        if sid not in self._device_to_gw:
             _LOGGER.error("on_read_ack(): sid not found %s", sid)
             return
-        self._gateways[sid].on_read_ack(model, sid, data)
+
+        self._device_to_gw[sid].on_read_ack(model, sid, data)
 
     def on_write_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a write request."""
-        if sid not in self._gateways:
+        if sid not in self._device_to_gw:
             _LOGGER.error("on_write_ack(): sid not found %s", sid)
             return
-        self._gateways[sid].on_write_ack(model, sid, data)
+        self._device_to_gw[sid].on_write_ack(model, sid, data)
 
     def on_report(self, model, sid, data):
         """Called when a device sent a status report."""

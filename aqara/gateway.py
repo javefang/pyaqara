@@ -91,7 +91,10 @@ class AqaraGateway(AqaraBaseDevice):
     def on_read_ack(self, model, sid, data):
         """Callback on read_ack"""
         _LOGGER.debug("on_read_ack: [%s] %s: %s", model, sid, json.dumps(data))
-        if sid != self._sid and sid not in self._devices:
+        if sid == self._sid:
+            self.on_update(data)
+            return
+        if sid not in self._devices:
             self._devices[sid] = create_device(model, sid)
         self._try_update_device(model, sid, data)
 
