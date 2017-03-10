@@ -120,13 +120,6 @@ class AqaraGateway(AqaraBaseDevice):
             # handle as device heartbeat
             pass
 
-    def _try_update_device(self, model, sid, data):
-        """Update device data"""
-        if sid not in self._devices:
-            _LOGGER.warning('unregistered device: %s [%s]', model, sid)
-            return
-        self._devices[sid].on_update(data)
-
     def on_update(self, data):
         """Update gateway"""
         if "rgb" in data:
@@ -135,6 +128,13 @@ class AqaraGateway(AqaraBaseDevice):
             self._properties["illumination"] = data["illumination"]
         if "proto_version" in data:
             self._properties["proto_version"] = data["proto_version"]
+
+    def _try_update_device(self, model, sid, data):
+        """Update device data"""
+        if sid not in self._devices:
+            _LOGGER.warning('unregistered device: %s [%s]', model, sid)
+            return
+        self._devices[sid].on_update(data)
 
     def _make_key(self):
         return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")
