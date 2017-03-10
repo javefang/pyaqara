@@ -14,9 +14,6 @@ from aqara.const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-def parse_value(str_value):
-    return round(int(str_value) / 100, 1)
-
 def create_device(model, sid):
     """Device factory"""
     if model == AQARA_DEVICE_HT:
@@ -89,9 +86,15 @@ class AqaraHTSensor(AqaraBaseDevice):
     def do_update(self, data):
         """update sensor state according to data"""
         if "temperature" in data:
-            self._temp = parse_value(data["temperature"])
+            self._temp = self.parse_value(data["temperature"])
         if "humidity" in data:
-            self._humid = parse_value(data["humidity"])
+            self._humid = self.parse_value(data["humidity"])
+
+    @staticmethod
+    def parse_value(str_value):
+        """parse sensor_ht values"""
+        return round(int(str_value) / 100, 1)
+
 
 class AqaraContactSensor(AqaraBaseDevice):
     """AqaraContactSensor"""
