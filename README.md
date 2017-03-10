@@ -94,15 +94,15 @@ To access device data
 
 # motion
 >>> print(sensor_motion.triggered)
-True
+True | False
 
 # magnet
 >>> print(sensor_magnet.triggered)
-True
+True | False
 
 # switch
 >>> print(sensor_switch.last_action)
-click
+click | double_click | long_click_press | long_click_release
 ```
 
 Sensor properties are updated automatically when reports are received.
@@ -119,7 +119,7 @@ Force update a sensor immediately
 client.update_now()
 ```
 
-### Gateway function
+### Gateway
 
 #### Set gateway light
 You can set the brightness and color (RGB) of the gateway LED ring light,
