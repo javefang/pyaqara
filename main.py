@@ -1,6 +1,7 @@
 """Example for using pyaqara."""
 import logging
 import asyncio
+import os
 from aqara.client import AqaraClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -8,7 +9,9 @@ _LOGGER = logging.getLogger(__name__)
 def main():
     logging.basicConfig(level=logging.DEBUG)
     loop = asyncio.get_event_loop()
-    aqara_client = AqaraClient()
+    gw_sid = os.environ["AQARA_GW_SID"]
+    gw_secret = os.environ["AQARA_GW_SECRET"]
+    aqara_client = AqaraClient({gw_sid: gw_secret})
     loop.run_until_complete(aqara_client.start(loop))
     try:
         loop.run_forever()
