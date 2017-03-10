@@ -42,6 +42,7 @@ class AqaraBaseDevice(object):
         self._model = model
         self._sid = sid
         self._update_callback = None
+        self._properties = {}
 
     @property
     def sid(self):
@@ -93,24 +94,26 @@ class AqaraHTSensor(AqaraBaseDevice):
     """AqaraHTSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_HT, gateway, sid)
-        self._temp = 0
-        self._humid = 0
+        self._properties = {
+            "temperature": 0,
+            "humidity": 0
+        }
 
     @property
     def temperature(self):
         """property: temperature (unit: C)"""
-        return self._temp
+        return self._properties["temperature"]
 
     @property
     def humidity(self):
         """property: humidity (unit: %)"""
-        return self._humid
+        return self._properties["humidity"]
 
     def do_update(self, data):
         if "temperature" in data:
-            self._temp = self.parse_value(data["temperature"])
+            self._properties["temperature"] = self.parse_value(data["temperature"])
         if "humidity" in data:
-            self._humid = self.parse_value(data["humidity"])
+            self._properties["humidity"] = self.parse_value(data["humidity"])
 
     def do_heartbeat(self, data):
         # heartbeat for HT sensor contains the same data as report
@@ -126,64 +129,70 @@ class AqaraContactSensor(AqaraBaseDevice):
     """AqaraContactSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_MAGNET, gateway, sid)
-        self._triggered = False
-        self._voltage = 0
+        self._properties = {
+            "triggered": False,
+            "voltage": 0
+        }
 
     @property
     def triggered(self):
         """property: triggered (bool)"""
-        return self._triggered
+        return self._properties["triggered"]
 
     def do_update(self, data):
         if "status" in data:
-            self._triggered = data["status"] == "open"
+            self._properties["triggered"] = data["status"] == "open"
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._voltage = int(data["voltage"])
+            self._properties["voltage"] = int(data["voltage"])
 
 class AqaraMotionSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_MOTION, gateway, sid)
-        self._triggered = False
-        self._voltage = 0
+        self._properties = {
+            "triggered": False,
+            "voltage": 0
+        }
 
     @property
     def triggered(self):
         """property: triggered (bool)"""
-        return self._triggered
+        return self._properties["triggered"]
 
     def do_update(self, data):
         if "status" in data:
-            self._triggered = data["status"] == "motion"
+            self._properties["triggered"] = data["status"] == "motion"
         else:
-            self._triggered = False
+            self._properties["triggered"] = False
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._voltage = int(data["voltage"])
+            self._properties["voltage"] = int(data["voltage"])
 
 class AqaraSwitchSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_SWITCH, gateway, sid)
-        self._last_action = None
-        self._voltage = 0
+        self._properties = {
+            "action": None,
+            "voltage": 0
+        }
 
     @property
-    def last_action(self):
+    def action(self):
         """property: last_action"""
-        return self._last_action
+        return self._properties["action"]
 
     def do_update(self, data):
         if "status" in data:
             status = data["status"]
             if status in BUTTON_ACTION_MAP:
-                self._last_action = BUTTON_ACTION_MAP[status]
+                self._properties["action"] = BUTTON_ACTION_MAP[status]
             else:
                 self.log_warning('invalid status: {}' % status)
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._voltage = int(data["voltage"])
+            self._properties["voltage"] = int(data["voltage"])

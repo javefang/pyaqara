@@ -58,6 +58,7 @@ class AqaraClient(AqaraProtocol):
 
     def discover_gateways(self):
         """Ask all gateways to respond identity."""
+        _LOGGER.info('discovering gateways...')
         discovery_msg = {"cmd": "whois"}
         self.broadcast(discovery_msg)
 
@@ -118,6 +119,7 @@ class AqaraClient(AqaraProtocol):
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
+        _LOGGER.info("discovered gateway at %s [%s]", gw_sid, gw_addr)
         gw_secret = AQARA_ENCRYPT_DUMMY_PASSWORD \
             if gw_sid not in self._gw_secrets \
             else self._gw_secrets[gw_sid]
@@ -134,7 +136,7 @@ class AqaraClient(AqaraProtocol):
             return
         gateway = self._gateways[gw_sid]
         for sid in sids:
-            _LOGGER.info("registering device %s to gateway %s", sid, gw_sid)
+            _LOGGER.info("found device %s on gateway %s", sid, gw_sid)
             self._device_to_gw[sid] = gateway
         gateway.on_devices_discovered(sids)
 

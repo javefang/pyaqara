@@ -101,7 +101,7 @@ True | False
 True | False
 
 # switch
->>> print(sensor_switch.last_action)
+>>> print(sensor_switch.action)
 click | double_click | long_click_press | long_click_release
 ```
 

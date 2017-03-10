@@ -4,6 +4,7 @@ import asyncio
 import os
 from aqara.client import AqaraClient
 
+logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
 
 def main():

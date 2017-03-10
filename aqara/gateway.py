@@ -73,6 +73,7 @@ class AqaraGateway(AqaraBaseDevice):
 
     def discover_devices(self):
         """discover devices attached to this gateway"""
+        _LOGGER.info('discovering devices for gateway %s [%s]...', self.sid, self.addr)
         self._client.discover_devices(self._addr)
 
     def read_device(self, sid):
@@ -106,7 +107,9 @@ class AqaraGateway(AqaraBaseDevice):
         """Callback on read_ack"""
         _LOGGER.debug("on_read_ack: [%s] %s: %s", model, sid, json.dumps(data))
         if sid not in self._devices:
-            self._devices[sid] = create_device(self, model, sid)
+            new_device = create_device(self, model, sid)
+            _LOGGER.info("added new device %s [%s] to gateway %s", sid, model, self.sid)
+            self._devices[sid] = new_device
         self._try_update_device(model, sid, data)
 
     def on_write_ack(self, model, sid, data):
