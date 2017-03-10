@@ -49,13 +49,23 @@ class AqaraBaseDevice(object):
         self._update_callback = update_callback
 
     def on_update(self, data):
-        """update sensor data"""
+        """handler for sensor data update"""
         self.do_update(data)
+        if self._update_callback != None:
+            self._update_callback()
+
+    def on_heartbeat(self, data):
+        """handler for heartbeat"""
+        self.do_heartbeat(data)
         if self._update_callback != None:
             self._update_callback()
 
     def do_update(self, data):
         """update sensor state according to data"""
+        pass
+
+    def do_heartbeat(self, data):
+        """update heartbeat"""
         pass
 
     def log_warning(self, msg):
@@ -101,6 +111,7 @@ class AqaraContactSensor(AqaraBaseDevice):
     def __init__(self, sid):
         super().__init__(AQARA_DEVICE_MAGNET, sid)
         self._triggered = False
+        self._voltage = 0
 
     @property
     def triggered(self):
@@ -108,14 +119,21 @@ class AqaraContactSensor(AqaraBaseDevice):
         return self._triggered
 
     def do_update(self, data):
+        """update sensor state according to data"""
         if "status" in data:
             self._triggered = data["status"] == "open"
+
+    def do_heartbeat(self, data):
+        """update heartbeat"""
+        if "voltage" in data:
+            self._voltage = int(data["voltage"])
 
 class AqaraMotionSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, sid):
         super().__init__(AQARA_DEVICE_MOTION, sid)
         self._triggered = False
+        self._voltage = 0
 
     @property
     def triggered(self):
@@ -129,11 +147,17 @@ class AqaraMotionSensor(AqaraBaseDevice):
         else:
             self._triggered = False
 
+    def do_heartbeat(self, data):
+        """update heartbeat"""
+        if "voltage" in data:
+            self._voltage = int(data["voltage"])
+
 class AqaraSwitchSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, sid):
         super().__init__(AQARA_DEVICE_SWITCH, sid)
         self._last_action = None
+        self._voltage = 0
 
     @property
     def last_action(self):
@@ -142,18 +166,18 @@ class AqaraSwitchSensor(AqaraBaseDevice):
 
     def do_update(self, data):
         """update sensor state according to data"""
-        if "status" not in data:
-            self.log_warning('missing status in event data')
-            self._last_action = None
-            return
+        if "status" in data:
+            status = data["status"]
+            if status == 'click':
+                self._last_action = AQARA_SWITCH_ACTION_CLICK
+            elif status == 'double_click':
+                self._last_action = AQARA_SWITCH_ACTION_DOUBLE_CLICK
+            elif status == 'long_click_press':
+                self._last_action = AQARA_SWITCH_ACTION_LONG_CLICK_PRESS
+            else:
+                self.log_warning('invalid status: ' + status)
 
-        status = data["status"]
-
-        if status == 'click':
-            self._last_action = AQARA_SWITCH_ACTION_CLICK
-        elif status == 'double_click':
-            self._last_action = AQARA_SWITCH_ACTION_DOUBLE_CLICK
-        elif status == 'long_click_press':
-            self._last_action = AQARA_SWITCH_ACTION_LONG_CLICK_PRESS
-        else:
-            self.log_warning('invalid status: ' + status)
+    def do_heartbeat(self, data):
+        """update heartbeat"""
+        if "voltage" in data:
+            self._voltage = int(data["voltage"])

@@ -158,11 +158,11 @@ class AqaraClient(AqaraProtocol):
         if sid not in self._device_to_gw:
             _LOGGER.warning("on_report(): sid not found %s", sid)
             return
-        self._device_to_gw[sid].on_report(model, sid, data)
+        self._device_to_gw[sid].on_device_report(model, sid, data)
 
     def on_heartbeat(self, model, sid, data, gw_token):
         """Called when a heartbeat is received."""
         if sid not in self._device_to_gw:
             _LOGGER.warning("on_heartbeat(): sid not found %s", sid)
             return
-        self._device_to_gw[sid].on_heartbeat(model, sid, data, gw_token)
+        self._device_to_gw[sid].on_device_heartbeat(model, sid, data, gw_token)

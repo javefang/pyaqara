@@ -35,9 +35,11 @@ class AqaraGateway(AqaraBaseDevice):
         self._properties = {
             "rgb": 0,
             "illumination": 0,
-            "proto_version": None
+            "proto_version": None,
+            "voltage": 0
         }
         self._devices = {}
+        self._devices[sid] = self
 
     @property
     def devices(self):
@@ -91,9 +93,6 @@ class AqaraGateway(AqaraBaseDevice):
     def on_read_ack(self, model, sid, data):
         """Callback on read_ack"""
         _LOGGER.debug("on_read_ack: [%s] %s: %s", model, sid, json.dumps(data))
-        if sid == self._sid:
-            self.on_update(data)
-            return
         if sid not in self._devices:
             self._devices[sid] = create_device(model, sid)
         self._try_update_device(model, sid, data)
@@ -102,17 +101,12 @@ class AqaraGateway(AqaraBaseDevice):
         """Callback on write_ack"""
         _LOGGER.debug("on_write_ack: [%s] %s: %s", model, sid, json.dumps(data))
 
-    def on_report(self, model, sid, data):
+    def on_device_report(self, model, sid, data):
         """Callback on report"""
         _LOGGER.debug("on_report: [%s] %s: %s", model, sid, json.dumps(data))
-        if sid == self._sid:
-            # handle as gateway report
-            self.on_update(data)
-        else:
-            # handle as device report
-            self._try_update_device(model, sid, data)
+        self._try_update_device(model, sid, data)
 
-    def on_heartbeat(self, model, sid, data, gw_token):
+    def on_device_heartbeat(self, model, sid, data, gw_token):
         """Callback on heartbeat"""
         _LOGGER.debug("on_heartbeat: [%s] %s: (token=%s) %s",
                       model, sid, gw_token, json.dumps(data))
@@ -121,7 +115,7 @@ class AqaraGateway(AqaraBaseDevice):
             self._token = gw_token
         else:
             # handle as device heartbeat
-            pass
+            self._try_update_device(model, sid, data)
 
     def on_update(self, data):
         """Update gateway"""
@@ -138,6 +132,14 @@ class AqaraGateway(AqaraBaseDevice):
             _LOGGER.warning('unregistered device: %s [%s]', model, sid)
             return
         self._devices[sid].on_update(data)
+
+
+    def _try_heartbeat_device(self, model, sid, data):
+        """Send heartbeat to device"""
+        if sid not in self._devices:
+            _LOGGER.warning('unregistered device: %s [%s]', model, sid)
+            return
+        self._devices[sid].on_heartbeat(data)
 
     def _make_key(self):
         return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")

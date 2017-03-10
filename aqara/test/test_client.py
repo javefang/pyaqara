@@ -115,7 +115,7 @@ def test_handle_message_heartbeat():
     gw_sid = "123456"
     mock_client = AqaraClient()
     mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, AQARA_ENCRYPT_DUMMY_PASSWORD)
-    mock_gateway.on_heartbeat = MagicMock()
+    mock_gateway.on_device_heartbeat = MagicMock()
     mock_client._gateways[gw_sid] = mock_gateway
     mock_client._device_to_gw[gw_sid] = mock_gateway
     msg_heartbeat = {
@@ -128,4 +128,6 @@ def test_handle_message_heartbeat():
 
     mock_client.handle_message(msg_heartbeat, gw_addr)
 
-    mock_gateway.on_heartbeat.assert_called_once_with("gateway", gw_sid, {"ip": gw_addr}, "ffffff")
+    mock_gateway.on_device_heartbeat.assert_called_once_with(
+        "gateway", gw_sid, {"ip": gw_addr}, "ffffff"
+    )
