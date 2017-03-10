@@ -5,7 +5,6 @@ import json
 from unittest.mock import MagicMock
 from aqara.client import AqaraClient
 from aqara.gateway import AqaraGateway
-
 from aqara.const import AQARA_ENCRYPT_DUMMY_PASSWORD
 
 # Send tests

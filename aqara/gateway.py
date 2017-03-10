@@ -13,8 +13,8 @@ Features:
 import logging
 import json
 import binascii
-from Crypto.Cipher import AES
 
+from Crypto.Cipher import AES
 from aqara.device import (create_device, AqaraBaseDevice)
 from aqara.const import (AQARA_ENCRYPT_IV, AQARA_DEVICE_GATEWAY)
 
