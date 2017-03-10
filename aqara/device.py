@@ -32,8 +32,8 @@ def create_device(model, sid):
 
 class AqaraBaseDevice(object):
     """AqaraBaseDevice"""
-    def __init__(self, name, sid):
-        self._name = name
+    def __init__(self, model, sid):
+        self._model = model
         self._sid = sid
         self._update_callback = None
 
@@ -41,6 +41,11 @@ class AqaraBaseDevice(object):
     def sid(self):
         """property: sid"""
         return self._sid
+
+    @property
+    def model(self):
+        """property: model"""
+        return self._model
 
     def set_update_callback(self, update_callback):
         """set update_callback"""
@@ -62,12 +67,12 @@ class AqaraBaseDevice(object):
 
     def _log(self, log_func, msg):
         """log"""
-        log_func('[%s] %s: %s', self._name, self._sid, msg)
+        log_func('[%s] %s: %s', self._model, self._sid, msg)
 
 class AqaraHTSensor(AqaraBaseDevice):
     """AqaraHTSensor"""
     def __init__(self, sid):
-        super().__init__('HT', sid)
+        super().__init__(AQARA_DEVICE_HT, sid)
         self._temp = 0
         self._humid = 0
 
@@ -91,7 +96,7 @@ class AqaraHTSensor(AqaraBaseDevice):
 class AqaraContactSensor(AqaraBaseDevice):
     """AqaraContactSensor"""
     def __init__(self, sid):
-        super().__init__('Contact', sid)
+        super().__init__(AQARA_DEVICE_MAGNET, sid)
         self._triggered = False
 
     @property
@@ -106,7 +111,7 @@ class AqaraContactSensor(AqaraBaseDevice):
 class AqaraMotionSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, sid):
-        super().__init__('Motion', sid)
+        super().__init__(AQARA_DEVICE_MOTION, sid)
         self._triggered = False
 
     @property
@@ -124,7 +129,7 @@ class AqaraMotionSensor(AqaraBaseDevice):
 class AqaraSwitchSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, sid):
-        super().__init__('Switch', sid)
+        super().__init__(AQARA_DEVICE_SWITCH, sid)
         self._last_action = None
 
     @property

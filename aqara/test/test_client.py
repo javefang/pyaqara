@@ -56,11 +56,13 @@ def test_handle_message_iam():
 
     mock_client = AqaraClient()
     mock_client.discover_devices = MagicMock()
+    mock_client.read_device = MagicMock()
 
     mock_client.handle_message(msg_iam, src_addr)
 
     assert len(mock_client.gateways.keys()) == 1
     mock_client.discover_devices.assert_called_once_with(src_addr)
+    mock_client.read_device.assert_called_once_with(src_addr, "123456")
 
 def test_handle_message_device_list():
     """Test if client maps all sids to the gateway and call gateway.on_devices_discovered"""

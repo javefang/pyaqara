@@ -15,8 +15,8 @@ import json
 import binascii
 from Crypto.Cipher import AES
 
-from aqara.device import (create_device)
-from aqara.const import (AQARA_ENCRYPT_IV)
+from aqara.device import (create_device, AqaraBaseDevice)
+from aqara.const import (AQARA_ENCRYPT_IV, AQARA_DEVICE_GATEWAY)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,11 +24,11 @@ def encode_light_rgb(brightness, red, green, blue):
     """Encode rgb value used to control the gateway light"""
     return brightness << 24 + red << 16 + green << 8 + blue
 
-class AqaraGateway(object):
+class AqaraGateway(AqaraBaseDevice):
     """Aqara Gateway implementation."""
     def __init__(self, client, sid, addr, secret):
+        super().__init__(AQARA_DEVICE_GATEWAY, sid)
         self._client = client
-        self._sid = sid
         self._addr = addr
         self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
         self._token = None
@@ -40,11 +40,6 @@ class AqaraGateway(object):
         self._devices = {}
 
     @property
-    def model(self):
-        """property: model"""
-        return "gateway"
-
-    @property
     def devices(self):
         """property: devices"""
         return self._devices
@@ -54,10 +49,25 @@ class AqaraGateway(object):
         """property: addr"""
         return self._addr
 
+    @property
+    def rgb(self):
+        """property: rgb"""
+        return self._properties["rgb"]
+
+    @property
+    def illumination(self):
+        """property: illumination"""
+        return self._properties["illumination"]
+
+    @property
+    def proto_version(self):
+        """property: proto_version"""
+        return self._properties["proto_version"]
+
     def connect(self):
         """Start the gateway"""
         self._client.discover_devices(self._addr)
-        #self._client.read_device(self._addr, self._sid)
+        self._client.read_device(self._addr, self._sid)
 
     def set_light(self, brightness, red, green, blue):
         """Set gateway light (color and brightness)"""
@@ -81,7 +91,7 @@ class AqaraGateway(object):
     def on_read_ack(self, model, sid, data):
         """Callback on read_ack"""
         _LOGGER.debug("on_read_ack: [%s] %s: %s", model, sid, json.dumps(data))
-        if sid not in self._devices:
+        if sid != self._sid and sid not in self._devices:
             self._devices[sid] = create_device(model, sid)
         self._try_update_device(model, sid, data)
 
@@ -94,7 +104,7 @@ class AqaraGateway(object):
         _LOGGER.debug("on_report: [%s] %s: %s", model, sid, json.dumps(data))
         if sid == self._sid:
             # handle as gateway report
-            self._try_update_gateway(data)
+            self.on_update(data)
         else:
             # handle as device report
             self._try_update_device(model, sid, data)
@@ -117,7 +127,7 @@ class AqaraGateway(object):
             return
         self._devices[sid].on_update(data)
 
-    def _try_update_gateway(self, data):
+    def on_update(self, data):
         """Update gateway"""
         if "rgb" in data:
             self._properties["rgb"] = data["rgb"]
