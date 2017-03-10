@@ -1,4 +1,4 @@
-.PHONY: version lint run publish-test publish clean
+.PHONY: check version lint run publish-test publish clean
 
 lint:
 				pylint aqara
@@ -9,14 +9,16 @@ test: lint
 run:
 				python3 main.py
 
-version:
-				$(eval TAG := $(shell git describe --tags | sort | head -1))
-				@echo $(TAG)
+version: check
+				@VERSION=$(shell git describe --tags | sort | head -1) envsubst < setup.py.tmpl > setup.py
+
+check:
+				@git describe --tags > /dev/null
 
 publish-test: test version
 				VERSION=$(TAG) python setup.py sdist upload -r pypitest
 
-publish: test
+publish: test version
 				VERSION=$(TAG) python setup.py sdist upload -r pypi
 
 clean:

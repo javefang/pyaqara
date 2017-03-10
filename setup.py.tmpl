@@ -1,14 +1,11 @@
 """Setup file for aqara package."""
-import os
 from distutils.core import setup
 
-ver = os.environ["VERSION"]
-
 setup(name='pyaqara',
- version=ver,
+ version='${VERSION}',
  description='Python API for interfacing with the Aqara gateway',
  url='https://github.com/javefang/pyaqara',
- download_url="https://github.com/javefang/pyaqara/tarball/" + ver,
+ download_url="https://github.com/javefang/pyaqara/tarball/${VERSION}",
  author='Xinghong Fang',
  author_email= 'xinghong.fang@gmail.com',
  license='MIT',
