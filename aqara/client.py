@@ -18,7 +18,7 @@ import logging
 
 from aqara.protocol import AqaraProtocol
 from aqara.gateway import AqaraGateway
-from aqara.const import (LISTEN_IP, LISTEN_PORT)
+from aqara.const import (LISTEN_IP, LISTEN_PORT, AQARA_ENCRYPT_DUMMY_PASSWORD)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -118,9 +118,10 @@ class AqaraClient(AqaraProtocol):
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
-        gw_secret = None
-        if gw_sid in self._gw_secrets:
-            gw_secret = self._gw_secrets[gw_sid]
+        gw_secret = AQARA_ENCRYPT_DUMMY_PASSWORD \
+            if gw_sid not in self._gw_secrets \
+            else self._gw_secrets[gw_sid]
+        print(gw_secret)
         gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
         self._gateways[gw_sid] = gateway
         self._device_to_gw[gw_sid] = gateway
@@ -129,7 +130,7 @@ class AqaraClient(AqaraProtocol):
     def on_devices_discovered(self, gw_sid, sids):
         """Called when list of devices of gateway is returned."""
         if gw_sid not in self._gateways:
-            _LOGGER.error("on_devices_discovered(): sid not found %s", gw_sid)
+            _LOGGER.error("on_devices_discovered(): gateway %s not found", gw_sid)
             return
         gateway = self._gateways[gw_sid]
         for sid in sids:

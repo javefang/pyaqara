@@ -20,25 +20,29 @@ from aqara.const import (AQARA_ENCRYPT_IV)
 
 _LOGGER = logging.getLogger(__name__)
 
-def encrypt(token, secret):
-    """Encrypt gateway token with secret"""
-    cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
-    return binascii.hexlify(cipher.encrypt(token)).decode("utf-8")
-
 def encode_light_rgb(brightness, red, green, blue):
     """Encode rgb value used to control the gateway light"""
     return brightness << 24 + red << 16 + green << 8 + blue
 
 class AqaraGateway(object):
     """Aqara Gateway implementation."""
-    def __init__(self, client, sid, addr, secret=None):
-        self._model = "gateway"
+    def __init__(self, client, sid, addr, secret):
         self._client = client
         self._sid = sid
         self._addr = addr
-        self._secret = secret
+        self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
         self._token = None
+        self._properties = {
+            "rgb": 0,
+            "illumination": 0,
+            "proto_version": None
+        }
         self._devices = {}
+
+    @property
+    def model(self):
+        """property: model"""
+        return "gateway"
 
     @property
     def devices(self):
@@ -53,19 +57,21 @@ class AqaraGateway(object):
     def connect(self):
         """Start the gateway"""
         self._client.discover_devices(self._addr)
+        #self._client.read_device(self._addr, self._sid)
 
     def set_light(self, brightness, red, green, blue):
         """Set gateway light (color and brightness)"""
         rgb = encode_light_rgb(brightness, red, green, blue)
+        self._properties["rgb"] = rgb
         data = {
             "rgb": rgb,
-            "key": encrypt(self._token, self._secret)
+            "key": self._make_key()
         }
         meta = {
             "short_id": 0,
             "key": 8
         }
-        self._client.write_device(self._addr, self._model, self._sid, data, meta)
+        self._client.write_device(self._addr, self.model, self._sid, data, meta)
 
     def on_devices_discovered(self, sids):
         """Callback when devices are discovered"""
@@ -88,7 +94,7 @@ class AqaraGateway(object):
         _LOGGER.debug("on_report: [%s] %s: %s", model, sid, json.dumps(data))
         if sid == self._sid:
             # handle as gateway report
-            pass
+            self._try_update_gateway(data)
         else:
             # handle as device report
             self._try_update_device(model, sid, data)
@@ -110,3 +116,15 @@ class AqaraGateway(object):
             _LOGGER.warning('unregistered device: %s [%s]', model, sid)
             return
         self._devices[sid].on_update(data)
+
+    def _try_update_gateway(self, data):
+        """Update gateway"""
+        if "rgb" in data:
+            self._properties["rgb"] = data["rgb"]
+        if "illumination" in data:
+            self._properties["illumination"] = data["illumination"]
+        if "proto_version" in data:
+            self._properties["proto_version"] = data["proto_version"]
+
+    def _make_key(self):
+        return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")
