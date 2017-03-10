@@ -108,4 +108,5 @@ class AqaraGateway(object):
         """Update device data"""
         if sid not in self._devices:
             _LOGGER.warning('unregistered device: %s [%s]', model, sid)
+            return
         self._devices[sid].on_update(data)
