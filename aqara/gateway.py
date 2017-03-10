@@ -118,7 +118,6 @@ class AqaraGateway(AqaraBaseDevice):
             self._try_update_device(model, sid, data)
 
     def on_update(self, data):
-        """Update gateway"""
         if "rgb" in data:
             self._properties["rgb"] = data["rgb"]
         if "illumination" in data:

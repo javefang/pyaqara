@@ -102,14 +102,12 @@ class AqaraHTSensor(AqaraBaseDevice):
         return self._humid
 
     def do_update(self, data):
-        """update sensor state according to data"""
         if "temperature" in data:
             self._temp = self.parse_value(data["temperature"])
         if "humidity" in data:
             self._humid = self.parse_value(data["humidity"])
 
     def do_heartbeat(self, data):
-        """process heartbeat"""
         # heartbeat for HT sensor contains the same data as report
         self.do_update(data)
 
@@ -132,12 +130,10 @@ class AqaraContactSensor(AqaraBaseDevice):
         return self._triggered
 
     def do_update(self, data):
-        """update sensor state according to data"""
         if "status" in data:
             self._triggered = data["status"] == "open"
 
     def do_heartbeat(self, data):
-        """update heartbeat"""
         if "voltage" in data:
             self._voltage = int(data["voltage"])
 
@@ -154,14 +150,12 @@ class AqaraMotionSensor(AqaraBaseDevice):
         return self._triggered
 
     def do_update(self, data):
-        """update sensor state according to data"""
         if "status" in data:
             self._triggered = data["status"] == "motion"
         else:
             self._triggered = False
 
     def do_heartbeat(self, data):
-        """update heartbeat"""
         if "voltage" in data:
             self._voltage = int(data["voltage"])
 
@@ -178,7 +172,6 @@ class AqaraSwitchSensor(AqaraBaseDevice):
         return self._last_action
 
     def do_update(self, data):
-        """update sensor state according to data"""
         if "status" in data:
             status = data["status"]
             if status in BUTTON_ACTION_MAP:
@@ -187,6 +180,5 @@ class AqaraSwitchSensor(AqaraBaseDevice):
                 self.log_warning('invalid status: {}' % status)
 
     def do_heartbeat(self, data):
-        """update heartbeat"""
         if "voltage" in data:
             self._voltage = int(data["voltage"])
