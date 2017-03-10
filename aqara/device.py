@@ -108,6 +108,11 @@ class AqaraHTSensor(AqaraBaseDevice):
         if "humidity" in data:
             self._humid = self.parse_value(data["humidity"])
 
+    def do_heartbeat(self, data):
+        """process heartbeat"""
+        # heartbeat for HT sensor contains the same data as report
+        self.do_update(data)
+
     @staticmethod
     def parse_value(str_value):
         """parse sensor_ht values"""
