@@ -18,7 +18,7 @@ import logging
 
 from aqara.protocol import AqaraProtocol
 from aqara.gateway import AqaraGateway
-from aqara.const import (LISTEN_IP, LISTEN_PORT)
+from aqara.const import (LISTEN_IP, LISTEN_PORT, AQARA_ENCRYPT_DUMMY_PASSWORD)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -118,9 +118,10 @@ class AqaraClient(AqaraProtocol):
 
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
-        gw_secret = None
-        if gw_sid in self._gw_secrets:
-            gw_secret = self._gw_secrets[gw_sid]
+        gw_secret = AQARA_ENCRYPT_DUMMY_PASSWORD \
+            if gw_sid not in self._gw_secrets \
+            else self._gw_secrets[gw_sid]
+        print(gw_secret)
         gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
         self._gateways[gw_sid] = gateway
         self._device_to_gw[gw_sid] = gateway
@@ -129,37 +130,39 @@ class AqaraClient(AqaraProtocol):
     def on_devices_discovered(self, gw_sid, sids):
         """Called when list of devices of gateway is returned."""
         if gw_sid not in self._gateways:
-            _LOGGER.error("on_devices_discovered(): sid not found %s", gw_sid)
+            _LOGGER.error("on_devices_discovered(): gateway %s not found", gw_sid)
             return
         gateway = self._gateways[gw_sid]
         for sid in sids:
+            _LOGGER.info("registering device %s to gateway %s", sid, gw_sid)
             self._device_to_gw[sid] = gateway
         gateway.on_devices_discovered(sids)
 
     def on_read_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a read request."""
-        if sid not in self._gateways:
+        if sid not in self._device_to_gw:
             _LOGGER.error("on_read_ack(): sid not found %s", sid)
             return
-        self._gateways[sid].on_read_ack(model, sid, data)
+
+        self._device_to_gw[sid].on_read_ack(model, sid, data)
 
     def on_write_ack(self, model, sid, data):
         """Called when a gateway send back ACK for a write request."""
-        if sid not in self._gateways:
+        if sid not in self._device_to_gw:
             _LOGGER.error("on_write_ack(): sid not found %s", sid)
             return
-        self._gateways[sid].on_write_ack(model, sid, data)
+        self._device_to_gw[sid].on_write_ack(model, sid, data)
 
     def on_report(self, model, sid, data):
         """Called when a device sent a status report."""
         if sid not in self._device_to_gw:
             _LOGGER.warning("on_report(): sid not found %s", sid)
             return
-        self._device_to_gw[sid].on_report(model, sid, data)
+        self._device_to_gw[sid].on_device_report(model, sid, data)
 
     def on_heartbeat(self, model, sid, data, gw_token):
         """Called when a heartbeat is received."""
         if sid not in self._device_to_gw:
             _LOGGER.warning("on_heartbeat(): sid not found %s", sid)
             return
-        self._device_to_gw[sid].on_heartbeat(model, sid, data, gw_token)
+        self._device_to_gw[sid].on_device_heartbeat(model, sid, data, gw_token)

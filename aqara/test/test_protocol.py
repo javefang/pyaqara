@@ -1,8 +1,8 @@
 """Aqara Client Test"""
 import json
+
 from asyncio import DatagramTransport
 from unittest.mock import MagicMock
-
 from aqara import protocol
 from aqara.const import (MCAST_ADDR, MCAST_PORT, GATEWAY_PORT)
 

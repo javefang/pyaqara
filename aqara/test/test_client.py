@@ -5,6 +5,7 @@ import json
 from unittest.mock import MagicMock
 from aqara.client import AqaraClient
 from aqara.gateway import AqaraGateway
+from aqara.const import AQARA_ENCRYPT_DUMMY_PASSWORD
 
 # Send tests
 
@@ -54,11 +55,13 @@ def test_handle_message_iam():
 
     mock_client = AqaraClient()
     mock_client.discover_devices = MagicMock()
+    mock_client.read_device = MagicMock()
 
     mock_client.handle_message(msg_iam, src_addr)
 
     assert len(mock_client.gateways.keys()) == 1
     mock_client.discover_devices.assert_called_once_with(src_addr)
+    mock_client.read_device.assert_called_once_with(src_addr, "123456")
 
 def test_handle_message_device_list():
     """Test if client maps all sids to the gateway and call gateway.on_devices_discovered"""
@@ -73,7 +76,7 @@ def test_handle_message_device_list():
 
     mock_client = AqaraClient()
     mock_client.read_device = MagicMock()
-    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr)
+    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, AQARA_ENCRYPT_DUMMY_PASSWORD)
     mock_client._gateways[gw_sid] = mock_gateway
     mock_gateway.on_devices_discovered = MagicMock()
 
@@ -86,28 +89,32 @@ def test_handle_message_read_ack():
     """Test if client forward the read_ack to the correct gateway"""
     gw_addr = "10.10.10.10"
     gw_sid = "123456"
+    device_sid = "abcdef"
+
     mock_client = AqaraClient()
-    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr)
+    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, AQARA_ENCRYPT_DUMMY_PASSWORD)
     mock_gateway.on_read_ack = MagicMock()
-    mock_client._device_to_gw["abcdef"] = mock_gateway
+    mock_client._gateways[gw_sid] = mock_gateway
+    mock_client._device_to_gw[gw_sid] = mock_gateway
+    mock_client._device_to_gw[device_sid] = mock_gateway
     msg_read_ack = {
         "cmd": "read_ack",
-        "sid": "abcdef",
+        "sid": device_sid,
         "model": "magnet",
         "data": json.dumps({"status": "open"})
     }
 
     mock_client.handle_message(msg_read_ack, gw_addr)
 
-    mock_gateway.on_read_ack.called_once_with("magnet", "abcdef", {"status": "open"})
+    mock_gateway.on_read_ack.assert_called_once_with("magnet", device_sid, {"status": "open"})
 
 def test_handle_message_heartbeat():
     """Test if the gateway token is updated on a gateway heartbeat"""
     gw_addr = "10.10.10.10"
     gw_sid = "123456"
     mock_client = AqaraClient()
-    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr)
-    mock_gateway.on_heartbeat = MagicMock()
+    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, AQARA_ENCRYPT_DUMMY_PASSWORD)
+    mock_gateway.on_device_heartbeat = MagicMock()
     mock_client._gateways[gw_sid] = mock_gateway
     mock_client._device_to_gw[gw_sid] = mock_gateway
     msg_heartbeat = {
@@ -120,4 +127,6 @@ def test_handle_message_heartbeat():
 
     mock_client.handle_message(msg_heartbeat, gw_addr)
 
-    mock_gateway.on_heartbeat.assert_called_once_with("gateway", gw_sid, {"ip": gw_addr}, "ffffff")
+    mock_gateway.on_device_heartbeat.assert_called_once_with(
+        "gateway", gw_sid, {"ip": gw_addr}, "ffffff"
+    )

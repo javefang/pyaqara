@@ -1,4 +1,4 @@
-.PHONY: lint run publish-test publish clean
+.PHONY: version lint run publish-test publish clean
 
 lint:
 				pylint aqara
@@ -9,11 +9,15 @@ test: lint
 run:
 				python3 main.py
 
-publish-test: test
-				python setup.py sdist upload -r pypitest
+version:
+				$(eval TAG := $(shell git describe --tags | sort | head -1))
+				@echo $(TAG)
+
+publish-test: test version
+				VERSION=$(TAG) python setup.py sdist upload -r pypitest
 
 publish: test
-				python setup.py sdist upload -r pypi
+				VERSION=$(TAG) python setup.py sdist upload -r pypi
 
 clean:
 				find . -name "*.pyc" | xargs -I {} rm -v "{}"
