@@ -37,7 +37,8 @@ def create_device(model, sid):
 
 class AqaraBaseDevice(object):
     """AqaraBaseDevice"""
-    def __init__(self, model, sid):
+    def __init__(self, gateway, model, sid):
+        self._gateway = gateway
         self._model = model
         self._sid = sid
         self._update_callback = None
@@ -55,6 +56,10 @@ class AqaraBaseDevice(object):
     def set_update_callback(self, update_callback):
         """set update_callback"""
         self._update_callback = update_callback
+
+    def update_now(self):
+        """force read sensor data"""
+        self._gateway.read_device(self._sid)
 
     def on_update(self, data):
         """handler for sensor data update"""

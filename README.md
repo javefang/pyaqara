@@ -27,7 +27,6 @@ Supported Hardwares
 ## API
 ### Configuration
 Create an instance of AqaraClient, and provide your gateway SIDs and secrets as a dictionary, for Example
-
 ```
 from aqara.client import AqaraClient
 
@@ -39,7 +38,6 @@ client = AqaraClient({
 
 ### Bootstrap
 The API need to be running in an event loop.
-
 ```
 import asyncio
 
@@ -58,22 +56,25 @@ loop.close()
 Once started, the client will automatically discover all gateways.
 It will also discover all attached devices (sensors) when each new gateway is discovered.
 
-You can trigger a manual discovery later
-
+You can trigger a manual discovery of gateways later
 ```
 client.discover_gateways()
 ```
 
-Get a list of discovered gateways
 
+Get a list of discovered gateways
 ```
 gateways = client.gateway
 ```
 
 Get a list of discovered devices of a gateway
-
 ```
-gateways[0].devices
+devices = gateways[0].devices
+```
+
+Trigger a manual discovery of devices on a gateway
+```
+gateway.discover_devices()
 ```
 
 ### Sensors
@@ -85,10 +86,10 @@ print(sensor.model)
 To access sensor data
 ```
 # sensor_ht
->>> print(sensor_ht.temperature)
+\>\>\> print(sensor_ht.temperature)
 23.51
 
->>> print(sensor_ht.humidity)
+\>\>\> print(sensor_ht.humidity)
 60.15
 
 # motion
@@ -96,11 +97,11 @@ To access sensor data
 True
 
 # magnet
->>> print(sensor_magnet.triggered)
+\>\>\> print(sensor_magnet.triggered)
 True
 
 # switch
->>> print(sensor_switch.last_action)
+\>\>\> print(sensor_switch.last_action)
 click
 ```
 
@@ -113,4 +114,21 @@ def on_sensor_update():
 sensor.set_update_callback(on_sensor_update)
 ```
 
-self.set_light(77, 255, 79, 0) #original 1308577536
+Force update a sensor immediately
+```
+client.update_now()
+```
+
+### Gateway function
+
+#### Set gateway light
+You can set the brightness and colour (RGB) of the gateway LED ring light,
+each parameter is an interger ranging from 0-255.
+
+```
+# brightness: 77
+# red: 255
+# green: 79
+# blue: 0
+gateway.set_light(77, 255, 79, 0) # warm orange
+```
