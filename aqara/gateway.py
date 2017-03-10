@@ -27,7 +27,7 @@ def encode_light_rgb(brightness, red, green, blue):
 class AqaraGateway(AqaraBaseDevice):
     """Aqara Gateway implementation."""
     def __init__(self, client, sid, addr, secret):
-        super().__init__(AQARA_DEVICE_GATEWAY, sid)
+        super().__init__(AQARA_DEVICE_GATEWAY, self, sid)
         self._client = client
         self._addr = addr
         self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
@@ -79,19 +79,23 @@ class AqaraGateway(AqaraBaseDevice):
         """force read the value of a device attached to this gateway"""
         self._client.read_device(self._addr, sid)
 
+    def write_device(self, device, data, meta):
+        """write data to device"""
+        data["key"] = self._make_key()
+        self._client.write_device(self._addr, device.model, device.sid, data, meta)
+
     def set_light(self, brightness, red, green, blue):
         """Set gateway light (color and brightness)"""
         rgb = encode_light_rgb(brightness, red, green, blue)
         self._properties["rgb"] = rgb
         data = {
             "rgb": rgb,
-            "key": self._make_key()
         }
         meta = {
             "short_id": 0,
             "key": 8
         }
-        self._client.write_device(self._addr, self.model, self._sid, data, meta)
+        self.write_device(self, data, meta)
 
     def on_devices_discovered(self, sids):
         """Callback when devices are discovered"""
@@ -102,7 +106,7 @@ class AqaraGateway(AqaraBaseDevice):
         """Callback on read_ack"""
         _LOGGER.debug("on_read_ack: [%s] %s: %s", model, sid, json.dumps(data))
         if sid not in self._devices:
-            self._devices[sid] = create_device(model, sid)
+            self._devices[sid] = create_device(self, model, sid)
         self._try_update_device(model, sid, data)
 
     def on_write_ack(self, model, sid, data):

@@ -22,16 +22,16 @@ BUTTON_ACTION_MAP = {
     "long_click_release": AQARA_SWITCH_ACTION_LONG_CLICK_RELEASE
 }
 
-def create_device(model, sid):
+def create_device(gateway, model, sid):
     """Device factory"""
     if model == AQARA_DEVICE_HT:
-        return AqaraHTSensor(sid)
+        return AqaraHTSensor(gateway, sid)
     elif model == AQARA_DEVICE_MOTION:
-        return AqaraMotionSensor(sid)
+        return AqaraMotionSensor(gateway, sid)
     elif model == AQARA_DEVICE_MAGNET:
-        return AqaraContactSensor(sid)
+        return AqaraContactSensor(gateway, sid)
     elif model == AQARA_DEVICE_SWITCH:
-        return AqaraSwitchSensor(sid)
+        return AqaraSwitchSensor(gateway, sid)
     else:
         raise RuntimeError('Unsupported device type: {} [{}]'.format(model, sid))
 
@@ -91,8 +91,8 @@ class AqaraBaseDevice(object):
 
 class AqaraHTSensor(AqaraBaseDevice):
     """AqaraHTSensor"""
-    def __init__(self, sid):
-        super().__init__(AQARA_DEVICE_HT, sid)
+    def __init__(self, gateway, sid):
+        super().__init__(AQARA_DEVICE_HT, gateway, sid)
         self._temp = 0
         self._humid = 0
 
@@ -124,8 +124,8 @@ class AqaraHTSensor(AqaraBaseDevice):
 
 class AqaraContactSensor(AqaraBaseDevice):
     """AqaraContactSensor"""
-    def __init__(self, sid):
-        super().__init__(AQARA_DEVICE_MAGNET, sid)
+    def __init__(self, gateway, sid):
+        super().__init__(AQARA_DEVICE_MAGNET, gateway, sid)
         self._triggered = False
         self._voltage = 0
 
@@ -144,8 +144,8 @@ class AqaraContactSensor(AqaraBaseDevice):
 
 class AqaraMotionSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
-    def __init__(self, sid):
-        super().__init__(AQARA_DEVICE_MOTION, sid)
+    def __init__(self, gateway, sid):
+        super().__init__(AQARA_DEVICE_MOTION, gateway, sid)
         self._triggered = False
         self._voltage = 0
 
@@ -166,8 +166,8 @@ class AqaraMotionSensor(AqaraBaseDevice):
 
 class AqaraSwitchSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
-    def __init__(self, sid):
-        super().__init__(AQARA_DEVICE_SWITCH, sid)
+    def __init__(self, gateway, sid):
+        super().__init__(AQARA_DEVICE_SWITCH, gateway, sid)
         self._last_action = None
         self._voltage = 0
 
