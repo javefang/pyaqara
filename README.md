@@ -122,8 +122,8 @@ client.update_now()
 ### Gateway function
 
 #### Set gateway light
-You can set the brightness and colour (RGB) of the gateway LED ring light,
-each parameter is an interger ranging from 0-255.
+You can set the brightness and color (RGB) of the gateway LED ring light,
+each parameter is an integer ranging from 0-255.
 
 ```
 # brightness: 77
