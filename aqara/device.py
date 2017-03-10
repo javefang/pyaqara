@@ -9,10 +9,18 @@ from aqara.const import (
     AQARA_DEVICE_SWITCH,
     AQARA_SWITCH_ACTION_CLICK,
     AQARA_SWITCH_ACTION_DOUBLE_CLICK,
-    AQARA_SWITCH_ACTION_LONG_CLICK_PRESS
+    AQARA_SWITCH_ACTION_LONG_CLICK_PRESS,
+    AQARA_SWITCH_ACTION_LONG_CLICK_RELEASE
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+BUTTON_ACTION_MAP = {
+    "click": AQARA_SWITCH_ACTION_CLICK,
+    "double_click": AQARA_SWITCH_ACTION_DOUBLE_CLICK,
+    "long_click_press": AQARA_SWITCH_ACTION_LONG_CLICK_PRESS,
+    "long_click_release": AQARA_SWITCH_ACTION_LONG_CLICK_RELEASE
+}
 
 def create_device(model, sid):
     """Device factory"""
@@ -168,14 +176,10 @@ class AqaraSwitchSensor(AqaraBaseDevice):
         """update sensor state according to data"""
         if "status" in data:
             status = data["status"]
-            if status == 'click':
-                self._last_action = AQARA_SWITCH_ACTION_CLICK
-            elif status == 'double_click':
-                self._last_action = AQARA_SWITCH_ACTION_DOUBLE_CLICK
-            elif status == 'long_click_press':
-                self._last_action = AQARA_SWITCH_ACTION_LONG_CLICK_PRESS
+            if status in BUTTON_ACTION_MAP:
+                self._last_action = BUTTON_ACTION_MAP[status]
             else:
-                self.log_warning('invalid status: ' + status)
+                self.log_warning('invalid status: {}' % status)
 
     def do_heartbeat(self, data):
         """update heartbeat"""
