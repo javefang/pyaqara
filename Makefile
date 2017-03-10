@@ -16,7 +16,7 @@ version:
 publish-test: test version
 				VERSION=$(TAG) python setup.py sdist upload -r pypitest
 
-publish: test
+publish: test version
 				VERSION=$(TAG) python setup.py sdist upload -r pypi
 
 clean:
