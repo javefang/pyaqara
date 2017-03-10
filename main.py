@@ -1,7 +1,6 @@
 """Example for using pyaqara."""
 import logging
 import asyncio
-import json
 from aqara.client import AqaraClient
 
 _LOGGER = logging.getLogger(__name__)
