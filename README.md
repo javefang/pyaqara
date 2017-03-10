@@ -86,10 +86,10 @@ print(device.model)
 To access device data
 ```
 # sensor_ht
-\>\>\> print(sensor_ht.temperature)
+>>> print(sensor_ht.temperature)
 23.51
 
-\>\>\> print(sensor_ht.humidity)
+>>> print(sensor_ht.humidity)
 60.15
 
 # motion
@@ -97,11 +97,11 @@ To access device data
 True
 
 # magnet
-\>\>\> print(sensor_magnet.triggered)
+>>> print(sensor_magnet.triggered)
 True
 
 # switch
-\>\>\> print(sensor_switch.last_action)
+>>> print(sensor_switch.last_action)
 click
 ```
 
