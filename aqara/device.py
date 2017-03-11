@@ -93,9 +93,13 @@ class AqaraBaseDevice(object):
         """log info"""
         self._log(_LOGGER.info, msg)
 
+    def log_debug(self, msg, **args):
+        """log debug"""
+        self._log(_LOGGER.debug, msg)
+
     def _log(self, log_func, msg):
         """log"""
-        log_func('[%s] %s: %s', self.model, self.sid, msg)
+        log_func('%s [%s]: %s', self.sid, self.model, msg)
 
 class AqaraHTSensor(AqaraBaseDevice):
     """AqaraHTSensor"""
