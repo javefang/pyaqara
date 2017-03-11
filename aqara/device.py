@@ -93,7 +93,7 @@ class AqaraBaseDevice(object):
         """log info"""
         self._log(_LOGGER.info, msg)
 
-    def log_debug(self, msg, **args):
+    def log_debug(self, msg):
         """log debug"""
         self._log(_LOGGER.debug, msg)
 
