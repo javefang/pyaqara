@@ -1,5 +1,6 @@
 """Aqara Devices"""
 
+import json
 import logging
 
 from aqara.const import (
@@ -10,7 +11,8 @@ from aqara.const import (
     AQARA_SWITCH_ACTION_CLICK,
     AQARA_SWITCH_ACTION_DOUBLE_CLICK,
     AQARA_SWITCH_ACTION_LONG_CLICK_PRESS,
-    AQARA_SWITCH_ACTION_LONG_CLICK_RELEASE
+    AQARA_SWITCH_ACTION_LONG_CLICK_RELEASE,
+    AQARA_DEFAULT_VOLTAGE
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,12 +39,12 @@ def create_device(gateway, model, sid):
 
 class AqaraBaseDevice(object):
     """AqaraBaseDevice"""
-    def __init__(self, gateway, model, sid):
+    def __init__(self, model, gateway, sid):
         self._gateway = gateway
         self._model = model
         self._sid = sid
         self._update_callback = None
-        self._properties = {}
+        self._device_props = {}
 
     @property
     def sid(self):
@@ -65,6 +67,7 @@ class AqaraBaseDevice(object):
     def on_update(self, data):
         """handler for sensor data update"""
         self.do_update(data)
+        self.log_info("update " + json.dumps(self._device_props))
         if self._update_callback != None:
             self._update_callback()
 
@@ -86,15 +89,19 @@ class AqaraBaseDevice(object):
         """log warning"""
         self._log(_LOGGER.warning, msg)
 
+    def log_info(self, msg):
+        """log info"""
+        self._log(_LOGGER.info, msg)
+
     def _log(self, log_func, msg):
         """log"""
-        log_func('[%s] %s: %s', self._model, self._sid, msg)
+        log_func('[%s] %s: %s', self.model, self.sid, msg)
 
 class AqaraHTSensor(AqaraBaseDevice):
     """AqaraHTSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_HT, gateway, sid)
-        self._properties = {
+        self._device_props = {
             "temperature": 0,
             "humidity": 0
         }
@@ -102,18 +109,18 @@ class AqaraHTSensor(AqaraBaseDevice):
     @property
     def temperature(self):
         """property: temperature (unit: C)"""
-        return self._properties["temperature"]
+        return self._device_props["temperature"]
 
     @property
     def humidity(self):
         """property: humidity (unit: %)"""
-        return self._properties["humidity"]
+        return self._device_props["humidity"]
 
     def do_update(self, data):
         if "temperature" in data:
-            self._properties["temperature"] = self.parse_value(data["temperature"])
+            self._device_props["temperature"] = self.parse_value(data["temperature"])
         if "humidity" in data:
-            self._properties["humidity"] = self.parse_value(data["humidity"])
+            self._device_props["humidity"] = self.parse_value(data["humidity"])
 
     def do_heartbeat(self, data):
         # heartbeat for HT sensor contains the same data as report
@@ -129,70 +136,70 @@ class AqaraContactSensor(AqaraBaseDevice):
     """AqaraContactSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_MAGNET, gateway, sid)
-        self._properties = {
+        self._device_props = {
             "triggered": False,
-            "voltage": 0
+            "voltage": AQARA_DEFAULT_VOLTAGE
         }
 
     @property
     def triggered(self):
         """property: triggered (bool)"""
-        return self._properties["triggered"]
+        return self._device_props["triggered"]
 
     def do_update(self, data):
         if "status" in data:
-            self._properties["triggered"] = data["status"] == "open"
+            self._device_props["triggered"] = data["status"] == "open"
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._properties["voltage"] = int(data["voltage"])
+            self._device_props["voltage"] = int(data["voltage"])
 
 class AqaraMotionSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_MOTION, gateway, sid)
-        self._properties = {
+        self._device_props = {
             "triggered": False,
-            "voltage": 0
+            "voltage": AQARA_DEFAULT_VOLTAGE
         }
 
     @property
     def triggered(self):
         """property: triggered (bool)"""
-        return self._properties["triggered"]
+        return self._device_props["triggered"]
 
     def do_update(self, data):
         if "status" in data:
-            self._properties["triggered"] = data["status"] == "motion"
+            self._device_props["triggered"] = data["status"] == "motion"
         else:
-            self._properties["triggered"] = False
+            self._device_props["triggered"] = False
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._properties["voltage"] = int(data["voltage"])
+            self._device_props["voltage"] = int(data["voltage"])
 
 class AqaraSwitchSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_SWITCH, gateway, sid)
-        self._properties = {
+        self._device_props = {
             "action": None,
-            "voltage": 0
+            "voltage": AQARA_DEFAULT_VOLTAGE
         }
 
     @property
     def action(self):
         """property: last_action"""
-        return self._properties["action"]
+        return self._device_props["action"]
 
     def do_update(self, data):
         if "status" in data:
             status = data["status"]
             if status in BUTTON_ACTION_MAP:
-                self._properties["action"] = BUTTON_ACTION_MAP[status]
+                self._device_props["action"] = BUTTON_ACTION_MAP[status]
             else:
                 self.log_warning('invalid status: {}' % status)
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._properties["voltage"] = int(data["voltage"])
+            self._device_props["voltage"] = int(data["voltage"])
