@@ -9,6 +9,11 @@ developer focus on developing features and integrations on top of the Aqara hard
 a focus on [HomeAssistant](https://github.com/home-assistant/home-assistant) integration.
 It also protect developers from breaking changes in the API.
 
+Package available on Pypi
+```
+$ pip3 install pyaqara
+```
+
 ## Features
 
 Supported Features
