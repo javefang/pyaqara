@@ -121,7 +121,6 @@ class AqaraClient(AqaraProtocol):
         gw_secret = AQARA_ENCRYPT_DUMMY_PASSWORD \
             if gw_sid not in self._gw_secrets \
             else self._gw_secrets[gw_sid]
-        print(gw_secret)
         gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
         self._gateways[gw_sid] = gateway
         self._device_to_gw[gw_sid] = gateway
