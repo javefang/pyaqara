@@ -23,3 +23,5 @@ AQARA_MID_STOP = 10000
 
 AQARA_ENCRYPT_IV = b'\x17\x99\x6d\x09\x3d\x28\xdd\xb3\xba\x69\x5a\x2e\x6f\x58\x56\x2e'
 AQARA_ENCRYPT_DUMMY_PASSWORD = 'thisisa16bsecret'
+
+AQARA_DEFAULT_VOLTAGE = 9999 # set to a large number when unknown
