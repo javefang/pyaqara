@@ -15,7 +15,7 @@ import binascii
 
 from Crypto.Cipher import AES
 from aqara.device import (create_device, AqaraBaseDevice)
-from aqara.const import (AQARA_ENCRYPT_IV, AQARA_DEVICE_GATEWAY)
+from aqara.const import (AQARA_ENCRYPT_IV, AQARA_DEVICE_GATEWAY, AQARA_MID_STOP)
 
 def encode_light_rgb(brightness, red, green, blue):
     """Encode rgb value used to control the gateway light"""
@@ -95,6 +95,14 @@ class AqaraGateway(AqaraBaseDevice):
         }
         self.write_device(self, data, meta)
 
+    def play_ringtone(self, mid):
+        """Play ringtone id 'mid'"""
+        self._set_mid(mid)
+
+    def stop_ringtone(self):
+        """Stop playing ringtone"""
+        self._set_mid(AQARA_MID_STOP)
+
     def on_devices_discovered(self, sids):
         """Callback when devices are discovered"""
         for sid in sids:
@@ -153,3 +161,13 @@ class AqaraGateway(AqaraBaseDevice):
 
     def _make_key(self):
         return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")
+
+    def _set_mid(self, mid):
+        data = {
+            "mid": mid,
+        }
+        meta = {
+            "short_id": 0,
+            "key": 8
+        }
+        self.write_device(self, data, meta)
