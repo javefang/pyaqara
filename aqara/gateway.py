@@ -16,7 +16,7 @@ import binascii
 
 from Crypto.Cipher import AES
 from aqara.device import (create_device, AqaraBaseDevice)
-from aqara.const import (AQARA_ENCRYPT_IV, AQARA_DEVICE_GATEWAY)
+from aqara.const import (AQARA_ENCRYPT_IV, AQARA_DEVICE_GATEWAY, AQARA_MID_ID_STOP)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -97,6 +97,14 @@ class AqaraGateway(AqaraBaseDevice):
         }
         self.write_device(self, data, meta)
 
+    def mid_play(self, mid_id):
+        """Play ringtone id 'mid_id'"""
+        self._set_mid(mid_id)
+
+    def mid_stop(self):
+        """Stop playing ringtone"""
+        self._set_mid(AQARA_MID_ID_STOP)
+
     def on_devices_discovered(self, sids):
         """Callback when devices are discovered"""
         for sid in sids:
@@ -154,3 +162,13 @@ class AqaraGateway(AqaraBaseDevice):
 
     def _make_key(self):
         return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")
+
+    def _set_mid(self, mid_id):
+        data = {
+            "mid": mid_id,
+        }
+        meta = {
+            "short_id": 0,
+            "key": 8
+        }
+        self.write_device(self, data, meta)
