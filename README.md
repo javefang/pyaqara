@@ -28,6 +28,7 @@ Supported Hardwares
   + Motion Sensor
   + Aqara Switch Sensor
   + Gateway LED (brightness and color)
+  + Gateway Ringtone
 
 ## API
 ### Configuration
@@ -136,4 +137,12 @@ each parameter is an integer ranging from 0-255.
 # green: 79
 # blue: 0
 gateway.set_light(77, 255, 79, 0) # warm orange
+```
+
+#### Play Ringtone
+Play system ringtone via the gateway's built-in speaker
+
+```
+# mid range for system ringtone is 0-8, 10-13, 20-29, or > 10000 for user defined ringtones
+gateway.mid_play(mid)
 ```
