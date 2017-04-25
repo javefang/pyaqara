@@ -63,5 +63,6 @@ class AqaraProtocol(object):
         sock = self.transport.get_extra_info("socket")
         group = socket.inet_aton(MCAST_ADDR)
         mreq = struct.pack("4sL", group, socket.INADDR_ANY)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
         _LOGGER.debug("Multicast membership added")

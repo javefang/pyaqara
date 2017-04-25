@@ -5,7 +5,10 @@ import json
 from unittest.mock import MagicMock
 from aqara.client import AqaraClient
 from aqara.gateway import AqaraGateway
-from aqara.const import AQARA_ENCRYPT_DUMMY_PASSWORD
+from aqara.const import (
+    AQARA_ENCRYPT_DUMMY_PASSWORD,
+    AQARA_EVENT_NEW_GATEWAY
+)
 
 # Send tests
 
@@ -53,15 +56,19 @@ def test_handle_message_iam():
         "sid": "123456"
     }
 
-    mock_client = AqaraClient()
-    mock_client.discover_devices = MagicMock()
-    mock_client.read_device = MagicMock()
+    mock_handler = MagicMock()
+    client = AqaraClient()
+    client.subscribe(mock_handler)
 
-    mock_client.handle_message(msg_iam, src_addr)
+    client.handle_message(msg_iam, src_addr)
 
-    assert len(mock_client.gateways.keys()) == 1
-    mock_client.discover_devices.assert_called_once_with(src_addr)
-    mock_client.read_device.assert_called_once_with(src_addr, "123456")
+    assert len(client.gateways.keys()) == 1
+    new_gateway = client.gateways["123456"]
+    mock_handler.assert_called_once_with(
+        sender=client,
+        gateway=new_gateway,
+        signal=AQARA_EVENT_NEW_GATEWAY
+    )
 
 def test_handle_message_device_list():
     """Test if client maps all sids to the gateway and call gateway.on_devices_discovered"""

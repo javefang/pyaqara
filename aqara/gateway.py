@@ -14,8 +14,14 @@ import json
 import binascii
 
 from Crypto.Cipher import AES
+from pydispatch import dispatcher
 from aqara.device import (create_device, AqaraBaseDevice)
-from aqara.const import (AQARA_ENCRYPT_IV, AQARA_DEVICE_GATEWAY, AQARA_MID_STOP)
+from aqara.const import (
+    AQARA_ENCRYPT_IV,
+    AQARA_DEVICE_GATEWAY,
+    AQARA_MID_STOP,
+    AQARA_EVENT_NEW_DEVICE
+)
 
 def encode_light_rgb(brightness, red, green, blue):
     """Encode rgb value used to control the gateway light"""
@@ -115,6 +121,7 @@ class AqaraGateway(AqaraBaseDevice):
             new_device = create_device(self, model, sid)
             self.log_info("added new device {} [{}]".format(sid, model))
             self._devices[sid] = new_device
+            dispatcher.send(signal=AQARA_EVENT_NEW_DEVICE, device=new_device, sender=self)
         self._try_update_device(model, sid, data)
 
     def on_write_ack(self, model, sid, data):
@@ -143,6 +150,14 @@ class AqaraGateway(AqaraBaseDevice):
             self._properties["illumination"] = data["illumination"]
         if "proto_version" in data:
             self._properties["proto_version"] = data["proto_version"]
+
+    def subscribe(self, handle_new_device):
+        """Subscribe to new device event."""
+        dispatcher.connect(handle_new_device, signal=AQARA_EVENT_NEW_DEVICE)
+
+    def unsubscribe(self, handle_new_device):
+        """Unsubscribe from new device event."""
+        dispatcher.disconnect(handle_new_device, signal=AQARA_EVENT_NEW_DEVICE)
 
     def _try_update_device(self, model, sid, data):
         """Update device data"""
