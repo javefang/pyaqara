@@ -1,5 +1,5 @@
 """Setup file for aqara package."""
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(name='pyaqara',
  version='${VERSION}',
@@ -11,8 +11,5 @@ setup(name='pyaqara',
  license='MIT',
  packages=['aqara'],
  keywords = ['aqara', 'home', 'automation', 'sensor'],
- install_requires=[
-   'pycrypto',
-   'PyDispatcher'
- ]
+ install_requires=['pycrypto', 'PyDispatcher']
 )
