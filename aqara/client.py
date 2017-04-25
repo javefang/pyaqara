@@ -16,9 +16,14 @@ import asyncio
 import json
 import logging
 
+from pydispatch import dispatcher
 from aqara.protocol import AqaraProtocol
 from aqara.gateway import AqaraGateway
-from aqara.const import (LISTEN_IP, LISTEN_PORT, AQARA_ENCRYPT_DUMMY_PASSWORD)
+from aqara.const import (
+    LISTEN_IP, LISTEN_PORT,
+    AQARA_ENCRYPT_DUMMY_PASSWORD,
+    AQARA_EVENT_NEW_GATEWAY
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -123,10 +128,10 @@ class AqaraClient(AqaraProtocol):
         gw_secret = AQARA_ENCRYPT_DUMMY_PASSWORD \
             if gw_sid not in self._gw_secrets \
             else self._gw_secrets[gw_sid]
-        gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
-        self._gateways[gw_sid] = gateway
-        self._device_to_gw[gw_sid] = gateway
-        gateway.connect()
+        new_gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
+        self._gateways[gw_sid] = new_gateway
+        self._device_to_gw[gw_sid] = new_gateway
+        dispatcher.send(signal=AQARA_EVENT_NEW_GATEWAY, gateway=new_gateway, sender=self)
 
     def on_devices_discovered(self, gw_sid, sids):
         """Called when list of devices of gateway is returned."""
@@ -167,3 +172,11 @@ class AqaraClient(AqaraProtocol):
             _LOGGER.warning("on_heartbeat(): sid not found %s", sid)
             return
         self._device_to_gw[sid].on_device_heartbeat(model, sid, data, gw_token)
+
+    def subscribe(self, handle_new_gateway):
+        """Subscribe to gateway events."""
+        dispatcher.connect(handle_new_gateway, signal=AQARA_EVENT_NEW_GATEWAY)
+
+    def unsubscribe(self, handle_new_gateway):
+        """Unsubscribe from gateway events."""
+        dispatcher.disconnect(handle_new_gateway, signal=AQARA_EVENT_NEW_GATEWAY)

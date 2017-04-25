@@ -13,6 +13,14 @@ def check_var(key):
         _LOGGER.error("Environment variable '%s' not set", key)
         sys.exit(1)
 
+def handle_new_device(sender, device):
+    _LOGGER.info('Discovered new device %s', device.sid)
+
+def handle_new_gateway(sender, gateway):
+    _LOGGER.info('Discovered new gateway %s, connecting...', gateway.sid)
+    gateway.subscribe(handle_new_device)
+    gateway.connect()
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
     loop = asyncio.get_event_loop()
@@ -23,6 +31,7 @@ def main():
     gw_secret = os.environ["AQARA_GW_SECRET"]
 
     aqara_client = AqaraClient({gw_sid: gw_secret})
+    aqara_client.subscribe(handle_new_gateway)
     loop.run_until_complete(aqara_client.start(loop))
     try:
         loop.run_forever()

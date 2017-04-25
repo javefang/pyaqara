@@ -1,1 +1,2 @@
 pycrypto==2.6.1
+PyDispatcher==2.0.5

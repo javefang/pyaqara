@@ -58,15 +58,50 @@ client.stop()
 loop.close()
 ```
 
+### Event Handling
+Currently the library allow subscription to two events.
+
+#### AQARA_EVENT_NEW_GATEWAY
+This event is fired by the ** client ** when a new gateway is discovered. Caller
+must subscribe after client is created but before starting the client to avoid
+missing events. Usually you would also need to initialise the gateway in the handler.
+
+```
+from aqara.const import AQARA_EVENT_NEW_GATEWAY
+
+def handle_new_gateway(sender, gateway):
+    _LOGGER.info('Discovered new gateway %s, connecting...', gateway.sid)
+    gateway.subscribe(handle_new_device)
+    gateway.connect()
+
+client.subscribe(handle_new_gateway)
+```
+
+#### AQARA_EVENT_NEW_DEVICE
+This event is fired by the ** gateway ** when a new device is discovered. Caller
+must subscribe after a gateway is discovered, this usually happens in the new gateway
+handler (see above). If you are integrating this library with other system, this
+is a good chance to add new devices to the system.
+
+```
+from aqara.const import AQARA_EVENT_NEW_DEVICE
+
+def handle_new_device(sender, device):
+    _LOGGER.info('Discovered new device %s', device.sid)
+
+gateway.subscribe(handle_new_device)
+```
+
 ### Discovery
-Once started, the client will automatically discover all gateways.
-It will also discover all attached devices (sensors) when each new gateway is discovered.
+Once started, the client will automatically discover all
+gateways. Once a gateway is discovered, you can initialise it
+by calling `gateway.connect()`, which will fetch its state and
+trigger a device discover.
 
 You can trigger a manual discovery of gateways later
 ```
 client.discover_gateways()
 ```
-
 
 Get a list of discovered gateways
 ```
