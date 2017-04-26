@@ -23,10 +23,6 @@ from aqara.const import (
     AQARA_EVENT_NEW_DEVICE
 )
 
-def encode_light_rgb(brightness, red, green, blue):
-    """Encode rgb value used to control the gateway light"""
-    return (brightness << 24) + (red << 16) + (green << 8) + blue
-
 class AqaraGateway(AqaraBaseDevice):
     """Aqara Gateway implementation."""
     def __init__(self, client, sid, addr, secret):
@@ -36,7 +32,7 @@ class AqaraGateway(AqaraBaseDevice):
         self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
         self._token = None
         self._properties = {
-            "rgb": 0,
+            "rgbw": 0,
             "illumination": 0,
             "proto_version": None,
             "voltage": 0
@@ -55,9 +51,9 @@ class AqaraGateway(AqaraBaseDevice):
         return self._addr
 
     @property
-    def rgb(self):
-        """property: rgb"""
-        return self._properties["rgb"]
+    def rgbw(self):
+        """property: rgbw"""
+        return self._properties["rgbw"]
 
     @property
     def illumination(self):
@@ -88,12 +84,11 @@ class AqaraGateway(AqaraBaseDevice):
         data["key"] = self._make_key()
         self._client.write_device(self._addr, device.model, device.sid, data, meta)
 
-    def set_light(self, brightness, red, green, blue):
-        """Set gateway light (color and brightness)"""
-        rgb = encode_light_rgb(brightness, red, green, blue)
-        self._properties["rgb"] = rgb
+    def set_light(self, rgbw):
+        """Set gateway light (rgbw)"""
+        self._properties["rgbw"] = rgbw
         data = {
-            "rgb": rgb,
+            "rgb": rgbw,
         }
         meta = {
             "short_id": 0,
