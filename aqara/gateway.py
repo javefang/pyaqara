@@ -112,12 +112,15 @@ class AqaraGateway(AqaraBaseDevice):
     def on_read_ack(self, model, sid, data):
         """Callback on read_ack"""
         self.log_debug("on_read_ack: [{}] {}: {}".format(model, sid, json.dumps(data)))
-        if sid not in self._devices:
-            new_device = create_device(self, model, sid)
-            self.log_info("added new device {} [{}]".format(sid, model))
-            self._devices[sid] = new_device
-            dispatcher.send(signal=AQARA_EVENT_NEW_DEVICE, device=new_device, sender=self)
-        self._try_update_device(model, sid, data)
+        if model == "gateway" and sid == self.sid:
+            self.on_update(data)
+        else:
+            if sid not in self._devices:
+                new_device = create_device(self, model, sid)
+                self.log_info("added new device {} [{}]".format(sid, model))
+                self._devices[sid] = new_device
+                dispatcher.send(signal=AQARA_EVENT_NEW_DEVICE, device=new_device, sender=self)
+            self._try_update_device(model, sid, data)
 
     def on_write_ack(self, model, sid, data):
         """Callback on write_ack"""
