@@ -152,7 +152,7 @@ To subscribe to updates, set a callback function:
 def on_sensor_update():
   print(sensor.triggered)
 
-sensor.subscribe(on_sensor_update)
+sensor.subscribe_update(on_sensor_update)
 ```
 
 Force update a sensor immediately

@@ -57,11 +57,11 @@ class AqaraBaseDevice(object):
         """property: model"""
         return self._model
 
-    def subscribe(self, handle_update):
+    def subscribe_update(self, handle_update):
         """subscribe to sensor update event"""
         dispatcher.connect(handle_update, signal=HASS_UPDATE_SIGNAL, sender=self)
 
-    def unsubscribe(self, handle_update):
+    def unsubscribe_update(self, handle_update):
         """unsubscribe from sensor update event"""
         dispatcher.disconnect(handle_update, signal=HASS_UPDATE_SIGNAL, sender=self)
 
