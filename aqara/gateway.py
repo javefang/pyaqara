@@ -113,8 +113,10 @@ class AqaraGateway(AqaraBaseDevice):
         """Callback on read_ack"""
         self.log_debug("on_read_ack: [{}] {}: {}".format(model, sid, json.dumps(data)))
         if model == "gateway" and sid == self.sid:
+            # handle read_ack for gateway itself
             self.on_update(data)
         else:
+            # handle read_ack for devices attached to this gateway
             if sid not in self._devices:
                 new_device = create_device(self, model, sid)
                 self.log_info("added new device {} [{}]".format(sid, model))
@@ -141,7 +143,7 @@ class AqaraGateway(AqaraBaseDevice):
             # handle as device heartbeat
             self._try_update_device(model, sid, data)
 
-    def on_update(self, data):
+    def do_update(self, data):
         if "rgb" in data:
             self._properties["rgb"] = data["rgb"]
         if "illumination" in data:
