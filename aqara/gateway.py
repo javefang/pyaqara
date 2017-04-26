@@ -127,6 +127,9 @@ class AqaraGateway(AqaraBaseDevice):
     def on_write_ack(self, model, sid, data):
         """Callback on write_ack"""
         self.log_debug("on_write_ack: {} [{}]: {}".format(sid, model, json.dumps(data)))
+        if model == "gateway" and sid == self.sid:
+            # handle write_ack for gateway
+            self.on_update(data)
 
     def on_device_report(self, model, sid, data):
         """Callback on report"""
