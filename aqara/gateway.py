@@ -31,7 +31,7 @@ class AqaraGateway(AqaraBaseDevice):
         self._addr = addr
         self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
         self._token = None
-        self._properties = {
+        self._device_props = {
             "rgbw": 0,
             "illumination": 0,
             "proto_version": None,
@@ -53,17 +53,17 @@ class AqaraGateway(AqaraBaseDevice):
     @property
     def rgbw(self):
         """property: rgbw"""
-        return self._properties["rgbw"]
+        return self._device_props["rgbw"]
 
     @property
     def illumination(self):
         """property: illumination"""
-        return self._properties["illumination"]
+        return self._device_props["illumination"]
 
     @property
     def proto_version(self):
         """property: proto_version"""
-        return self._properties["proto_version"]
+        return self._device_props["proto_version"]
 
     def connect(self):
         """Start the gateway"""
@@ -86,7 +86,7 @@ class AqaraGateway(AqaraBaseDevice):
 
     def set_light(self, rgbw):
         """Set gateway light (rgbw)"""
-        self._properties["rgbw"] = rgbw
+        self._device_props["rgbw"] = rgbw
         data = {
             "rgb": rgbw,
         }
@@ -145,11 +145,11 @@ class AqaraGateway(AqaraBaseDevice):
 
     def do_update(self, data):
         if "rgb" in data:
-            self._properties["rgb"] = data["rgb"]
+            self._device_props["rgbw"] = data["rgb"]
         if "illumination" in data:
-            self._properties["illumination"] = data["illumination"]
+            self._device_props["illumination"] = data["illumination"]
         if "proto_version" in data:
-            self._properties["proto_version"] = data["proto_version"]
+            self._device_props["proto_version"] = data["proto_version"]
 
     def subscribe(self, handle_new_device):
         """Subscribe to new device event."""
