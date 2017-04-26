@@ -3,6 +3,7 @@
 import json
 import logging
 
+from pydispatch import dispatcher
 from aqara.const import (
     AQARA_DEVICE_HT,
     AQARA_DEVICE_MOTION,
@@ -15,6 +16,7 @@ from aqara.const import (
     AQARA_DEFAULT_VOLTAGE
 )
 
+HASS_UPDATE_SIGNAL = "update_hass_sensor"
 _LOGGER = logging.getLogger(__name__)
 
 BUTTON_ACTION_MAP = {
@@ -43,7 +45,6 @@ class AqaraBaseDevice(object):
         self._gateway = gateway
         self._model = model
         self._sid = sid
-        self._update_callback = None
         self._device_props = {}
 
     @property
@@ -56,9 +57,13 @@ class AqaraBaseDevice(object):
         """property: model"""
         return self._model
 
-    def set_update_callback(self, update_callback):
-        """set update_callback"""
-        self._update_callback = update_callback
+    def subscribe(self, handle_update):
+        """subscribe to sensor update event"""
+        dispatcher.connect(handle_update, signal=HASS_UPDATE_SIGNAL, sender=self)
+
+    def unsubscribe(self, handle_update):
+        """unsubscribe from sensor update event"""
+        dispatcher.disconnect(handle_update, signal=HASS_UPDATE_SIGNAL, sender=self)
 
     def update_now(self):
         """force read sensor data"""
@@ -68,14 +73,12 @@ class AqaraBaseDevice(object):
         """handler for sensor data update"""
         self.do_update(data)
         self.log_info("update " + json.dumps(self._device_props))
-        if self._update_callback != None:
-            self._update_callback()
+        dispatcher.send(signal=HASS_UPDATE_SIGNAL, sender=self)
 
     def on_heartbeat(self, data):
         """handler for heartbeat"""
         self.do_heartbeat(data)
-        if self._update_callback != None:
-            self._update_callback()
+        dispatcher.send(signal=HASS_UPDATE_SIGNAL, sender=self)
 
     def do_update(self, data):
         """update sensor state according to data"""
