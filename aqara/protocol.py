@@ -28,9 +28,10 @@ class AqaraProtocol(object):
         self.transport = transport
         self._add_membership()
 
-    def connection_lost(self):
+    def connection_lost(self, exc):
         """Implementation when connection is lost."""
         _LOGGER.info("Disconnected")
+        _LOGGER.error(exc)
 
     def datagram_received(self, data, addr):
         """Implementation when datagram is received."""
