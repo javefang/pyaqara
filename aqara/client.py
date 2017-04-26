@@ -175,8 +175,8 @@ class AqaraClient(AqaraProtocol):
 
     def subscribe(self, handle_new_gateway):
         """Subscribe to gateway events."""
-        dispatcher.connect(handle_new_gateway, signal=AQARA_EVENT_NEW_GATEWAY)
+        dispatcher.connect(handle_new_gateway, signal=AQARA_EVENT_NEW_GATEWAY, sender=self)
 
     def unsubscribe(self, handle_new_gateway):
         """Unsubscribe from gateway events."""
-        dispatcher.disconnect(handle_new_gateway, signal=AQARA_EVENT_NEW_GATEWAY)
+        dispatcher.disconnect(handle_new_gateway, signal=AQARA_EVENT_NEW_GATEWAY, sender=self)

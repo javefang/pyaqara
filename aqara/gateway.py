@@ -153,11 +153,11 @@ class AqaraGateway(AqaraBaseDevice):
 
     def subscribe(self, handle_new_device):
         """Subscribe to new device event."""
-        dispatcher.connect(handle_new_device, signal=AQARA_EVENT_NEW_DEVICE)
+        dispatcher.connect(handle_new_device, signal=AQARA_EVENT_NEW_DEVICE, sender=self)
 
     def unsubscribe(self, handle_new_device):
         """Unsubscribe from new device event."""
-        dispatcher.disconnect(handle_new_device, signal=AQARA_EVENT_NEW_DEVICE)
+        dispatcher.disconnect(handle_new_device, signal=AQARA_EVENT_NEW_DEVICE, sender=self)
 
     def _try_update_device(self, model, sid, data):
         """Update device data"""
