@@ -30,7 +30,7 @@ class AqaraProtocol(object):
 
     def connection_lost(self, err):
         """Implementation when connection is lost."""
-        _LOGGER.warn("Disconnected")
+        _LOGGER.warning("Disconnected")
 
     def datagram_received(self, data, addr):
         """Implementation when datagram is received."""
