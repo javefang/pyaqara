@@ -88,7 +88,7 @@ class AqaraGateway(AqaraBaseDevice):
 
     def write_device(self, device, data, meta):
         """write data to device"""
-        if self._cipher != None
+        if self._cipher != None:
             data["key"] = self._make_key()
         self._client.write_device(self._addr, device.model, device.sid, data, meta)
 
