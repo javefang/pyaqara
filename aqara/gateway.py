@@ -34,7 +34,7 @@ class AqaraGateway(AqaraBaseDevice):
         self._addr = addr
 
         # enable encryption if secret is set
-        self._secret = None
+        self._secret = secret
         if secret != None:
             _LOGGER.info("Encryption enabled for gateway %s", sid)
         else:
