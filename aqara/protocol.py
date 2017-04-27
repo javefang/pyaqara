@@ -44,9 +44,9 @@ class AqaraProtocol(object):
         """Implentation when error is received."""
         _LOGGER.error('error_received: %s', exc)
 
-    def handle_message(self, data, addr):
+    def handle_message(self, msg, src_addr):
         """Callback to handle new messages, override to add implementation."""
-        _LOGGER.debug('handle_message from %s: %s', addr, json.dumps(data))
+        _LOGGER.debug('handle_message from %s: %s', src_addr, json.dumps(msg))
 
     def broadcast(self, msg):
         """Send a message to the Aqara multicast channel."""

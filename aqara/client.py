@@ -21,7 +21,6 @@ from aqara.protocol import AqaraProtocol
 from aqara.gateway import AqaraGateway
 from aqara.const import (
     LISTEN_IP, LISTEN_PORT,
-    AQARA_ENCRYPT_DUMMY_PASSWORD,
     AQARA_EVENT_NEW_GATEWAY
 )
 

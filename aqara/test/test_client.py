@@ -6,7 +6,6 @@ from unittest.mock import MagicMock
 from aqara.client import AqaraClient
 from aqara.gateway import AqaraGateway
 from aqara.const import (
-    AQARA_ENCRYPT_DUMMY_PASSWORD,
     AQARA_EVENT_NEW_GATEWAY
 )
 
@@ -83,7 +82,7 @@ def test_handle_message_device_list():
 
     mock_client = AqaraClient()
     mock_client.read_device = MagicMock()
-    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, AQARA_ENCRYPT_DUMMY_PASSWORD)
+    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, None)
     mock_client._gateways[gw_sid] = mock_gateway
     mock_gateway.on_devices_discovered = MagicMock()
 
@@ -99,7 +98,7 @@ def test_handle_message_read_ack():
     device_sid = "abcdef"
 
     mock_client = AqaraClient()
-    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, AQARA_ENCRYPT_DUMMY_PASSWORD)
+    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, None)
     mock_gateway.on_read_ack = MagicMock()
     mock_client._gateways[gw_sid] = mock_gateway
     mock_client._device_to_gw[gw_sid] = mock_gateway
@@ -120,7 +119,7 @@ def test_handle_message_heartbeat():
     gw_addr = "10.10.10.10"
     gw_sid = "123456"
     mock_client = AqaraClient()
-    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, AQARA_ENCRYPT_DUMMY_PASSWORD)
+    mock_gateway = AqaraGateway(mock_client, gw_sid, gw_addr, None)
     mock_gateway.on_device_heartbeat = MagicMock()
     mock_client._gateways[gw_sid] = mock_gateway
     mock_client._device_to_gw[gw_sid] = mock_gateway

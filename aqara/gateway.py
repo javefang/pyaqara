@@ -11,6 +11,7 @@ Features:
 """
 
 import json
+import logging
 import binascii
 
 from Crypto.Cipher import AES
@@ -22,6 +23,8 @@ from aqara.const import (
     AQARA_MID_STOP,
     AQARA_EVENT_NEW_DEVICE
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 class AqaraGateway(AqaraBaseDevice):
     """Aqara Gateway implementation."""
