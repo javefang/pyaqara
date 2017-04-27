@@ -128,9 +128,9 @@ class AqaraClient(AqaraProtocol):
     def on_gateway_discovered(self, gw_sid, gw_addr):
         """Called when a gateway is discovered"""
         _LOGGER.info("discovered gateway at %s [%s]", gw_sid, gw_addr)
-        gw_secret = AQARA_ENCRYPT_DUMMY_PASSWORD \
-            if gw_sid not in self._gw_secrets \
-            else self._gw_secrets[gw_sid]
+        gw_secret = None
+        if gw_sid in self._gw_secrets:
+            gw_secret = self._gw_secrets[gw_sid]
         new_gateway = AqaraGateway(self, gw_sid, gw_addr, gw_secret)
         self._gateways[gw_sid] = new_gateway
         self._device_to_gw[gw_sid] = new_gateway

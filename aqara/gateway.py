@@ -29,7 +29,14 @@ class AqaraGateway(AqaraBaseDevice):
         super().__init__(AQARA_DEVICE_GATEWAY, self, sid)
         self._client = client
         self._addr = addr
-        self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
+
+        # enable encryption if secret is set
+        self._cipher = None
+        if secret is not None:
+            _LOGGER.info("Encryption enabled for gateway %s", sid)
+            self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
+        else:
+            _LOGGER.info("Encryption disabled for gateway %s", sid)
         self._token = None
         self._device_props = {
             "rgbw": 0,
@@ -81,7 +88,8 @@ class AqaraGateway(AqaraBaseDevice):
 
     def write_device(self, device, data, meta):
         """write data to device"""
-        data["key"] = self._make_key()
+        if self._cipher != None
+            data["key"] = self._make_key()
         self._client.write_device(self._addr, device.model, device.sid, data, meta)
 
     def set_light(self, rgbw):
@@ -178,6 +186,8 @@ class AqaraGateway(AqaraBaseDevice):
         self._devices[sid].on_heartbeat(data)
 
     def _make_key(self):
+        if self._cipher is None:
+            raise Exception('EncyrptionNotAvailableError')
         return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")
 
     def _set_mid(self, mid):
