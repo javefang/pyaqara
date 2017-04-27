@@ -190,7 +190,9 @@ class AqaraGateway(AqaraBaseDevice):
 
     def _make_key(self):
         if self._cipher is None:
-            raise Exception('EncyrptionNotAvailableError')
+            raise Exception('EncyrptionNotEnabledError')
+        if self._token is None:
+            raise Exception('EncryptionTokenNotAvailableError')
         return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")
 
     def _set_mid(self, mid):
