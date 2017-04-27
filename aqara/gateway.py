@@ -34,10 +34,9 @@ class AqaraGateway(AqaraBaseDevice):
         self._addr = addr
 
         # enable encryption if secret is set
-        self._cipher = None
-        if secret is not None:
+        self._secret = None
+        if secret != None:
             _LOGGER.info("Encryption enabled for gateway %s", sid)
-            self._cipher = AES.new(secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
         else:
             _LOGGER.info("Encryption disabled for gateway %s", sid)
         self._token = None
@@ -91,7 +90,7 @@ class AqaraGateway(AqaraBaseDevice):
 
     def write_device(self, device, data, meta):
         """write data to device"""
-        if self._cipher != None:
+        if self._secret != None:
             data["key"] = self._make_key()
         self._client.write_device(self._addr, device.model, device.sid, data, meta)
 
@@ -189,11 +188,12 @@ class AqaraGateway(AqaraBaseDevice):
         self._devices[sid].on_heartbeat(data)
 
     def _make_key(self):
-        if self._cipher is None:
+        if self._secret is None:
             raise Exception('EncyrptionNotEnabledError')
         if self._token is None:
             raise Exception('EncryptionTokenNotAvailableError')
-        return binascii.hexlify(self._cipher.encrypt(self._token)).decode("utf-8")
+        cipher = AES.new(self._secret, AES.MODE_CBC, IV=AQARA_ENCRYPT_IV)
+        return binascii.hexlify(cipher.encrypt(self._token)).decode("utf-8")
 
     def _set_mid(self, mid):
         data = {
