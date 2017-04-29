@@ -153,6 +153,11 @@ class AqaraContactSensor(AqaraBaseDevice):
         """property: triggered (bool)"""
         return self._device_props["triggered"]
 
+    @property
+    def voltage(self):
+        """property: voltage"""
+        return self._device_props["voltage"]
+
     def do_update(self, data):
         if "status" in data:
             self._device_props["triggered"] = data["status"] == "open"
@@ -174,6 +179,11 @@ class AqaraMotionSensor(AqaraBaseDevice):
     def triggered(self):
         """property: triggered (bool)"""
         return self._device_props["triggered"]
+
+    @property
+    def voltage(self):
+        """property: voltage"""
+        return self._device_props["voltage"]
 
     def do_update(self, data):
         if "status" in data:
@@ -198,6 +208,11 @@ class AqaraSwitchSensor(AqaraBaseDevice):
     def action(self):
         """property: last_action"""
         return self._device_props["action"]
+
+    @property
+    def voltage(self):
+        """property: voltage"""
+        return self._device_props["voltage"]
 
     def do_update(self, data):
         if "status" in data:
