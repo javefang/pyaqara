@@ -89,7 +89,7 @@ class AqaraBaseDevice(object):
 
     def on_update(self, data):
         """handler for sensor data update"""
-        self.log_info("update: {}".format(json.dumps(data)))
+        self.log_info("on_update: {}".format(json.dumps(data)))
         if AQARA_DATA_VOLTAGE in data:
             self._voltage = data[AQARA_DATA_VOLTAGE]
         self.do_update(data)
@@ -97,7 +97,7 @@ class AqaraBaseDevice(object):
 
     def on_heartbeat(self, data):
         """handler for heartbeat"""
-        self.log_info("heartbeat: {}".format(json.dumps(data)))
+        self.log_info("on_heartbeat: {}".format(json.dumps(data)))
         if AQARA_DATA_VOLTAGE in data:
             self._voltage = data[AQARA_DATA_VOLTAGE]
         self.do_heartbeat(data)
@@ -191,7 +191,7 @@ class AqaraMotionSensor(AqaraBaseDevice):
 
     def do_update(self, data):
         if AQARA_DATA_STATUS in data:
-            self._triggered = data["status"] == "motion"
+            self._triggered = data[AQARA_DATA_STATUS] == "motion"
         else:
             self._triggered = False
 
