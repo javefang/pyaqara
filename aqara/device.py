@@ -17,6 +17,8 @@ from aqara.const import (
 )
 
 HASS_UPDATE_SIGNAL = "update_hass_sensor"
+HASS_HEARTBEAT_SIGNAL = "heartbeat_hass_sensor"
+
 _LOGGER = logging.getLogger(__name__)
 
 BUTTON_ACTION_MAP = {
@@ -78,7 +80,7 @@ class AqaraBaseDevice(object):
     def on_heartbeat(self, data):
         """handler for heartbeat"""
         self.do_heartbeat(data)
-        dispatcher.send(signal=HASS_UPDATE_SIGNAL, sender=self)
+        dispatcher.send(signal=HASS_HEARTBEAT_SIGNAL, sender=self)
 
     def do_update(self, data):
         """update sensor state according to data"""
@@ -164,7 +166,7 @@ class AqaraContactSensor(AqaraBaseDevice):
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._device_props["voltage"] = int(data["voltage"])
+            self._device_props["voltage"] = data["voltage"]
 
 class AqaraMotionSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
@@ -193,7 +195,7 @@ class AqaraMotionSensor(AqaraBaseDevice):
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._device_props["voltage"] = int(data["voltage"])
+            self._device_props["voltage"] = data["voltage"]
 
 class AqaraSwitchSensor(AqaraBaseDevice):
     """AqaraMotionSensor"""
@@ -224,4 +226,4 @@ class AqaraSwitchSensor(AqaraBaseDevice):
 
     def do_heartbeat(self, data):
         if "voltage" in data:
-            self._device_props["voltage"] = int(data["voltage"])
+            self._device_props["voltage"] = data["voltage"]
