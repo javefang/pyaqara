@@ -23,7 +23,13 @@ AQARA_MID_STOP = 10000
 
 AQARA_ENCRYPT_IV = b'\x17\x99\x6d\x09\x3d\x28\xdd\xb3\xba\x69\x5a\x2e\x6f\x58\x56\x2e'
 
-AQARA_DEFAULT_VOLTAGE = 9999 # set to a large number when unknown
-
 AQARA_EVENT_NEW_GATEWAY = 'aqara_new_gateway'
 AQARA_EVENT_NEW_DEVICE = 'aqara_new_device'
+
+AQARA_DATA_VOLTAGE = "voltage"
+AQARA_DATA_STATUS = "status"
+AQARA_DATA_TEMPERATURE = "temperature"
+AQARA_DATA_HUMIDITY = "humidity"
+AQARA_DATA_ACTION = "action"
+AQARA_DATA_RGB = "rgb"
+AQARA_DATA_ILLUMINATION = "illumination"

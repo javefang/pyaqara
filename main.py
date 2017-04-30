@@ -5,7 +5,7 @@ import os
 import sys
 from aqara.client import AqaraClient
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 _LOGGER = logging.getLogger(__name__)
 
 def check_var(key):
