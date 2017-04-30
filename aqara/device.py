@@ -67,6 +67,14 @@ class AqaraBaseDevice(object):
         """unsubscribe from sensor update event"""
         dispatcher.disconnect(handle_update, signal=HASS_UPDATE_SIGNAL, sender=self)
 
+    def subscribe_heartbeat(self, handle_heartbeat):
+        """subscirbe to sensor heartbeat event"""
+        dispatcher.connect(handle_heartbeat, signal=HASS_HEARTBEAT_SIGNAL, sender=self)
+
+    def unsubscribe_heartbeat(self, handle_heartbeat):
+        """unsubscribe from sensor heartbeat event"""
+        dispatcher.disconnect(handle_heartbeat, signal=HASS_HEARTBEAT_SIGNAL, sender=self)
+
     def update_now(self):
         """force read sensor data"""
         self._gateway.read_device(self._sid)
