@@ -21,7 +21,9 @@ from aqara.const import (
     AQARA_ENCRYPT_IV,
     AQARA_DEVICE_GATEWAY,
     AQARA_MID_STOP,
-    AQARA_EVENT_NEW_DEVICE
+    AQARA_EVENT_NEW_DEVICE,
+    AQARA_DATA_RGB,
+    AQARA_DATA_ILLUMINATION
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,12 +42,8 @@ class AqaraGateway(AqaraBaseDevice):
         else:
             _LOGGER.info("Encryption disabled for gateway %s", sid)
         self._token = None
-        self._device_props = {
-            "rgbw": 0,
-            "illumination": 0,
-            "proto_version": None,
-            "voltage": 0
-        }
+        self._rgbw = 0
+        self._illumination = 0
         self._devices = {}
         self._devices[sid] = self
 
@@ -62,17 +60,12 @@ class AqaraGateway(AqaraBaseDevice):
     @property
     def rgbw(self):
         """property: rgbw"""
-        return self._device_props["rgbw"]
+        return self._rgbw
 
     @property
     def illumination(self):
         """property: illumination"""
-        return self._device_props["illumination"]
-
-    @property
-    def proto_version(self):
-        """property: proto_version"""
-        return self._device_props["proto_version"]
+        return self._illumination
 
     def connect(self):
         """Start the gateway"""
@@ -96,7 +89,7 @@ class AqaraGateway(AqaraBaseDevice):
 
     def set_light(self, rgbw):
         """Set gateway light (rgbw)"""
-        self._device_props["rgbw"] = rgbw
+        self._rgbw = rgbw
         data = {
             "rgb": rgbw,
         }
@@ -157,12 +150,10 @@ class AqaraGateway(AqaraBaseDevice):
             self._try_update_device(model, sid, data)
 
     def do_update(self, data):
-        if "rgb" in data:
-            self._device_props["rgbw"] = data["rgb"]
-        if "illumination" in data:
-            self._device_props["illumination"] = data["illumination"]
-        if "proto_version" in data:
-            self._device_props["proto_version"] = data["proto_version"]
+        if AQARA_DATA_RGB in data:
+            self._rgbw = data[AQARA_DATA_RGB]
+        if AQARA_DATA_ILLUMINATION in data:
+            self._illumination = data[AQARA_DATA_ILLUMINATION]
 
     def subscribe(self, handle_new_device):
         """Subscribe to new device event."""
