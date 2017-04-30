@@ -147,7 +147,7 @@ class AqaraGateway(AqaraBaseDevice):
             self._token = gw_token
         else:
             # handle as device heartbeat
-            self._try_update_device(model, sid, data)
+            self._try_heartbeat_device(model, sid, data)
 
     def do_update(self, data):
         if AQARA_DATA_RGB in data:
