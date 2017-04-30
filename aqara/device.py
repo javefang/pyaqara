@@ -81,12 +81,13 @@ class AqaraBaseDevice(object):
 
     def on_update(self, data):
         """handler for sensor data update"""
+        self.log_debug("update: {}".format(json.dumps(data)))
         self.do_update(data)
-        self.log_info("update " + json.dumps(self._device_props))
         dispatcher.send(signal=HASS_UPDATE_SIGNAL, sender=self)
 
     def on_heartbeat(self, data):
         """handler for heartbeat"""
+        self.log_debug("heartbeat: {}".format(json.dumps(data)))
         self.do_heartbeat(data)
         dispatcher.send(signal=HASS_HEARTBEAT_SIGNAL, sender=self)
 
