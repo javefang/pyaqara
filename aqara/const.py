@@ -9,8 +9,10 @@ LISTEN_PORT = 9898
 GATEWAY_PORT = 9898
 
 AQARA_DEVICE_HT = 'sensor_ht'
+AQARA_DEVICE_HT1 = 'weather.v1'
 AQARA_DEVICE_MOTION = 'motion'
 AQARA_DEVICE_MAGNET = 'magnet'
+AQARA_DEVICE_MAGNET2 = 'sensor_magnet.aq2'
 AQARA_DEVICE_SWITCH = 'switch'
 AQARA_DEVICE_GATEWAY = 'gateway'
 
@@ -30,6 +32,7 @@ AQARA_DATA_VOLTAGE = "voltage"
 AQARA_DATA_STATUS = "status"
 AQARA_DATA_TEMPERATURE = "temperature"
 AQARA_DATA_HUMIDITY = "humidity"
+AQARA_DATA_PRESSURE = "pressure"
 AQARA_DATA_ACTION = "action"
 AQARA_DATA_RGB = "rgb"
 AQARA_DATA_ILLUMINATION = "illumination"

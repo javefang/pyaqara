@@ -6,8 +6,10 @@ import logging
 from pydispatch import dispatcher
 from aqara.const import (
     AQARA_DEVICE_HT,
+    AQARA_DEVICE_HT1,
     AQARA_DEVICE_MOTION,
     AQARA_DEVICE_MAGNET,
+    AQARA_DEVICE_MAGNET2,
     AQARA_DEVICE_SWITCH,
     AQARA_SWITCH_ACTION_CLICK,
     AQARA_SWITCH_ACTION_DOUBLE_CLICK,
@@ -16,7 +18,8 @@ from aqara.const import (
     AQARA_DATA_VOLTAGE,
     AQARA_DATA_STATUS,
     AQARA_DATA_TEMPERATURE,
-    AQARA_DATA_HUMIDITY
+    AQARA_DATA_HUMIDITY,
+    AQARA_DATA_PRESSURE
 )
 
 HASS_UPDATE_SIGNAL = "update_hass_sensor"
@@ -33,11 +36,11 @@ BUTTON_ACTION_MAP = {
 
 def create_device(gateway, model, sid):
     """Device factory"""
-    if model == AQARA_DEVICE_HT:
+    if model == AQARA_DEVICE_HT or model == AQARA_DEVICE_HT1:
         return AqaraHTSensor(gateway, sid)
     elif model == AQARA_DEVICE_MOTION:
         return AqaraMotionSensor(gateway, sid)
-    elif model == AQARA_DEVICE_MAGNET:
+    elif model == AQARA_DEVICE_MAGNET or model == AQARA_DEVICE_MAGNET2:
         return AqaraContactSensor(gateway, sid)
     elif model == AQARA_DEVICE_SWITCH:
         return AqaraSwitchSensor(gateway, sid)
@@ -133,6 +136,7 @@ class AqaraHTSensor(AqaraBaseDevice):
         super().__init__(AQARA_DEVICE_HT, gateway, sid)
         self._temperature = 0
         self._humidity = 0
+        self._pressure = 0
 
     @property
     def temperature(self):
@@ -144,11 +148,17 @@ class AqaraHTSensor(AqaraBaseDevice):
         """property: humidity (unit: %)"""
         return self._humidity
 
+    @property
+    def pressure(self):
+        return self._pressure
+
     def do_update(self, data):
         if AQARA_DATA_TEMPERATURE in data:
             self._temperature = self.parse_value(data[AQARA_DATA_TEMPERATURE])
         if AQARA_DATA_HUMIDITY in data:
             self._humidity = self.parse_value(data[AQARA_DATA_HUMIDITY])
+        if AQARA_DATA_PRESSURE in data:
+            self._pressure = self.parse_value(data[AQARA_DATA_PRESSURE])
 
     def do_heartbeat(self, data):
         # heartbeat for HT sensor contains the same data as report
@@ -165,15 +175,21 @@ class AqaraContactSensor(AqaraBaseDevice):
     def __init__(self, gateway, sid):
         super().__init__(AQARA_DEVICE_MAGNET, gateway, sid)
         self._triggered = False
+        self._status = "unknown"
 
     @property
     def triggered(self):
         """property: triggered (bool)"""
         return self._triggered
 
+    @property
+    def status(self):
+        return self._status
+
     def do_update(self, data):
         if AQARA_DATA_STATUS in data:
-            self._triggered = data[AQARA_DATA_STATUS] == "open"
+            self._triggered = data[AQARA_DATA_STATUS] != self._status 
+            self._status = data[AQARA_DATA_STATUS]
 
     def do_heartbeat(self, data):
         self.do_update(data)
