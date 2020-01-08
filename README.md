@@ -1,5 +1,7 @@
 # Aqara Gateway Python Library
 
+**DEPRECATED: this repo is not maintained anymore. Please see https://github.com/Danielhiversen/PyXiaomiGateway instead.**
+
 [![Build Status](https://travis-ci.org/javefang/pyaqara.svg?branch=master)](https://travis-ci.org/javefang/pyaqara)
 
 Python binding for the Aqara devices, based on protocol defined [here](https://github.com/louisZL/lumi-gateway-local-api)
