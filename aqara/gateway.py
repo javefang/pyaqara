@@ -83,6 +83,7 @@ class AqaraGateway(AqaraBaseDevice):
 
     def write_device(self, device, data, meta):
         """write data to device"""
+        print("secret", self._secret)
         if self._secret != None:
             data["key"] = self._make_key()
         self._client.write_device(self._addr, device.model, device.sid, data, meta)
@@ -143,8 +144,10 @@ class AqaraGateway(AqaraBaseDevice):
         """Callback on heartbeat"""
         self.log_debug("on_heartbeat: {} [{}]: {}".format(sid, model, json.dumps(data)))
         if sid == self._sid:
+            print("Gateway HB!!!", gw_token)
             # handle as gateway heartbeat
             self._token = gw_token
+            self.set_light("255, 255, 0")
         else:
             # handle as device heartbeat
             self._try_heartbeat_device(model, sid, data)

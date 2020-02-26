@@ -108,6 +108,7 @@ class AqaraClient(AqaraProtocol):
             data = _extract_data(msg)
             self.on_read_ack(model, sid, data)
         elif cmd == "write_ack":
+            print("write ack")
             if "model" not in msg:
                 _LOGGER.error("write error: %s", json.dumps(msg))
                 return
